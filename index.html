@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOHO Resturant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <img src="logo.png" alt="BOHO Logo" class="site-logo" style="height:56px;object-fit:contain;margin-right:12px;vertical-align:middle"> 
+            <h1 style="display:inline-block;vertical-align:middle;margin:0;">🍽️ BOHO Resturant</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content">
+        <div class="inner">
+            
+            <!-- Category Filters -->
+            <div class="category-section">
+                <h2>Menu</h2>
+                <ul class="category" id="categoryList">
+                    <li class="active"><a href="#" data-category="all">All Items</a></li>
+                </ul>
+            </div>
+
+            <!-- Items Section -->
+            <section class="items-section">
+                <h2>Items</h2>
+                <div class="items-grid" id="itemsContainer">
+                    <!-- Items will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Posts Section -->
+            <section class="posts-section">
+                <h2>Posts</h2>
+                <button class="btn-primary" id="newPostBtn">Write a Post</button>
+                <div class="posts-list" id="postsContainer">
+                    <!-- Posts will be loaded here -->
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Item Details Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="">
+                <h3 id="modalName"></h3>
+                <p class="price" id="modalPrice"></p>
+                <p id="modalCategory"></p>
+
+                <!-- Reviews Section -->
+                <div class="reviews-section">
+                    <h4>Reviews</h4>
+                    <button class="btn-secondary" id="newReviewBtn">Add Review</button>
+                    <div class="reviews-list" id="reviewsContainer">
+                        <!-- Reviews will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post Form Modal -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Write a Post</h3>
+            <form id="postForm">
+                <div class="form-group">
+                    <label for="postName">Name:</label>
+                    <input type="text" id="postName" name="postName" placeholder="Your name (optional)" maxlength="14">
+                </div>
+                <div class="form-group">
+                    <label for="postBody">Message:</label>
+                    <textarea id="postBody" name="postBody" placeholder="Share your thoughts..." maxlength="140" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postImage">Image URL (optional):</label>
+                    <input type="url" id="postImage" name="postImage" placeholder="https://example.com/image.jpg">
+                </div>
+                <button type="submit" class="btn-primary">Post</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Form Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Write a Review</h3>
+            <form id="reviewForm">
+                <div class="form-group">
+                    <label for="reviewName">Name:</label>
+                    <input type="text" id="reviewName" name="reviewName" placeholder="Your name" maxlength="50" required>
+                </div>
+                <div class="form-group">
+                    <label for="reviewBody">Review:</label>
+                    <textarea id="reviewBody" name="reviewBody" placeholder="Write your review..." maxlength="1000" rows="6" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 BOHO Resturant. All rights reserved.</p>
+        <p><strong>Owner:</strong> Vung Tau &nbsp;|&nbsp; <strong>Phone:</strong> <a href="tel:+84798633339">+84 79 863 3339</a> &nbsp;|&nbsp; <strong>Email:</strong> <a href="mailto:bohobeergarden@gmail.com">bohobeergarden@gmail.com</a></p>
+        <p><strong>Address:</strong> 66 Ha Long, Vung Tau, Vietnam 70000</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
