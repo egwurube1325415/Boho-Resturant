@@ -5,6 +5,97 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menu — BOHO Resturant</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .flipbook-teaser-section {
+      margin: 40px 0;
+      text-align: center;
+    }
+
+    .flipbook-cover-wrapper {
+      position: relative;
+      display: inline-block;
+      max-width: 500px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .flipbook-cover-wrapper:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+    }
+
+    .flipbook-cover-image {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .flipbook-cover-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+    }
+
+    .flipbook-cover-wrapper:hover .flipbook-cover-overlay {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .flipbook-cta {
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .flipbook-cover-wrapper:hover .flipbook-cta {
+      opacity: 1;
+    }
+
+    .flipbook-description {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .flipbook-modal-content {
+      max-width: 1200px;
+      padding: 20px;
+      max-height: 95vh;
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .flipbook-cover-wrapper {
+        max-width: 100%;
+      }
+
+      .flipbook-cta {
+        font-size: 16px;
+      }
+
+      .flipbook-modal-content {
+        padding: 10px;
+      }
+    }
+
+    /* Hide review modal on menu page */
+    #reviewModal {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
   <!-- Header -->
@@ -31,6 +122,25 @@
     <div class="inner">
       <h2>Our Menu</h2>
       <p>Explore our selection of fresh seafood, salads, and house specialties.</p>
+
+      <!-- Interactive Menu Flipbook Cover -->
+      <div class="flipbook-teaser-section">
+        <div class="flipbook-cover-wrapper" id="flipbookCoverBtn" style="cursor: pointer;">
+          <img src="assets/Menu Pages/cover page.png" alt="BOHO Resturant Menu Cover" class="flipbook-cover-image">
+          <div class="flipbook-cover-overlay">
+            <p class="flipbook-cta">📖 Explore Interactive Menu</p>
+          </div>
+        </div>
+        <p class="flipbook-description">Click the cover to browse our full menu in an interactive flipbook experience.</p>
+      </div>
+
+      <!-- Flipbook Modal -->
+      <div id="flipbookModal" class="modal" style="display: none;">
+        <div class="modal-content flipbook-modal-content">
+          <span class="close" id="flipbookModalClose">&times;</span>
+          <iframe src="menu-flipbook.html" style="width: 100%; height: 90vh; border: none; border-radius: 8px;"></iframe>
+        </div>
+      </div>
 
       <!-- Category Filters -->
       <div class="category-section">
@@ -72,50 +182,6 @@
         </div>
       </section>
 
-        <!-- Item Details Modal -->
-        <div id="itemModal" class="modal">
-          <div class="modal-content">
-            <span class="close">&times;</span>
-            <div class="modal-body">
-              <img id="modalImage" src="" alt="">
-              <h3 id="modalName"></h3>
-              <p class="price" id="modalPrice"></p>
-              <p id="modalCategory"></p>
-
-              <!-- Reviews Section -->
-              <div class="reviews-section">
-                <h4>Reviews</h4>
-                <button class="btn-secondary" id="newReviewBtn">Add Review</button>
-                <div class="reviews-list" id="reviewsContainer">
-                  <!-- Reviews will be loaded here -->
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Review Form Modal -->
-        <div id="reviewModal" class="modal">
-          <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Write a Review</h3>
-            <form id="reviewForm">
-              <div class="form-group">
-                <label for="reviewName">Name:</label>
-                <input type="text" id="reviewName" name="reviewName" placeholder="Your name" maxlength="50" required>
-              </div>
-              <div class="form-group">
-                <label for="reviewBody">Review:</label>
-                <textarea id="reviewBody" name="reviewBody" placeholder="Write your review..." maxlength="1000" rows="6" required></textarea>
-              </div>
-              <button type="submit" class="btn-primary">Submit Review</button>
-            </form>
-          </div>
-        </div>
-
-    </div>
-  </main>
-
   <footer class="footer">
     <p>&copy; 2025 BOHO Resturant. All rights reserved.</p>
     <p><strong>Owner:</strong> Vung Tau &nbsp;|&nbsp; <strong>Phone:</strong> <a href="tel:+84798633339">+84 79 863 3339</a> &nbsp;|&nbsp; <strong>Email:</strong> <a href="mailto:bohobeergarden@gmail.com">bohobeergarden@gmail.com</a></p>
@@ -123,5 +189,42 @@
   </footer>
 
   <script src="app.js"></script>
-</body>
-</html>
+  <script>
+    // Flipbook modal handlers
+    const flipbookCoverBtn = document.getElementById('flipbookCoverBtn');
+    const flipbookModal = document.getElementById('flipbookModal');
+    const flipbookModalClose = document.getElementById('flipbookModalClose');
+
+    if (flipbookCoverBtn && flipbookModal) {
+      flipbookCoverBtn.addEventListener('click', () => {
+        flipbookModal.style.display = 'flex';
+        flipbookModal.style.animation = 'fadeIn 0.4s ease';
+      });
+
+      flipbookModalClose.addEventListener('click', () => {
+        flipbookModal.style.display = 'none';
+      });
+
+      window.addEventListener('click', (e) => {
+        if (e.target === flipbookModal) {
+          flipbookModal.style.display = 'none';
+        }
+      });
+    }
+
+    // Add fade-in animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      .modal {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
