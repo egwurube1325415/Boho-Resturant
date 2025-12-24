@@ -708,6 +708,26 @@ ul.category li.active a:visited {
   font-size: 14px;
 }
 
+/* Footer Facebook Icon */
+.footer .social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  margin-left: 10px;
+}
+.footer .social-link:hover {
+  color: #A89158;
+}
+.footer .social-link svg {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  fill: currentColor;
+}
+
 /* Video Hero Section */
 .video-hero {
   position: fixed;
