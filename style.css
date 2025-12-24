@@ -579,6 +579,117 @@ ul.category li.active a:visited {
   margin: 10px 0;
 }
 
+/* Reservation Page Background */
+.reservation-page .content {
+  background-color: transparent;
+  padding: 140px 30px 30px 30px;
+  margin-top: 0;
+}
+
+.reservation-page .inner {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 40px;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.reservation-page .inner h2 {
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.reservation-page .inner p {
+  color: white;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.reservation-page .form-group label {
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.reservation-page .form-group input {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.reservation-page .form-group input:focus {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-color: #A89158;
+}
+
+/* About Page Video Hero & Overlay */
+.about-page .content {
+  background-color: transparent;
+  padding: 140px 30px 30px 30px;
+  margin-top: 0;
+}
+
+.about-page .inner {
+  background-color: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(8px);
+  padding: 40px;
+  border-radius: 12px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.about-page .inner h2,
+.about-page .inner h3,
+.about-page .inner p {
+  color: #222;
+  text-shadow: 0 2px 8px #fff, 0 1px 0 #fff;
+}
+
+.about-page .video-hero video {
+  width: 100vw;
+  height: 100vh;
+  min-width: 100vw;
+  min-height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: cover;
+  filter: brightness(1) saturate(1);
+}
+
+/* Contact Page Video Hero & Overlay */
+.contact-page .content {
+  background-color: transparent;
+  padding: 140px 30px 30px 30px;
+  margin-top: 0;
+}
+
+.contact-page .inner {
+  background-color: rgba(255,255,255,0.82);
+  backdrop-filter: blur(8px);
+  padding: 40px;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-page .inner h2,
+.contact-page .inner h3,
+.contact-page .inner p,
+.contact-page .inner label {
+  color: #222;
+  text-shadow: 0 2px 8px #fff, 0 1px 0 #fff;
+}
+
+.contact-page .form-group input,
+.contact-page .form-group textarea {
+  background-color: rgba(255,255,255,0.95);
+  border: 1px solid #ccc;
+}
+
+.contact-page .form-group input:focus,
+.contact-page .form-group textarea:focus {
+  background-color: #fff;
+  border-color: #A89158;
+}
+
 /* Footer */
 .footer {
   background-color: #333;
