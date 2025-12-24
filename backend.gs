@@ -345,3 +345,40 @@ function testGetItems() {
   });
   Logger.log('Test result: ' + result.getContent());
 }
+
+// Allow GET requests for read-only actions to avoid CORS preflight from browsers.
+function doGet(e) {
+  try {
+    const params = e.parameter || {};
+    const action = params.action;
+
+    Logger.log('GET Action: ' + action);
+
+    let response;
+
+    switch (action) {
+      case 'getItems':
+        response = getItems();
+        break;
+      case 'getPosts':
+        response = getPosts();
+        break;
+      case 'getReviews':
+        // expect itemId param
+        response = getReviews({ itemId: params.itemId });
+        break;
+      default:
+        response = formatResponse(false, null, 'Unknown action: ' + action);
+    }
+
+    return ContentService.createTextOutput(
+      JSON.stringify(response)
+    ).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    Logger.log('Error (GET): ' + error.message);
+    const response = formatResponse(false, null, 'Error: ' + error.message);
+    return ContentService.createTextOutput(
+      JSON.stringify(response)
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+}

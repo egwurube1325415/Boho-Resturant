@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — BOHO Resturant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="brand">
+        <img src="assets/logo.jpeg" alt="BOHO Logo" class="site-logo">
+        <span class="site-title">🍽️ BOHO Resturant</span>
+      </a>
+      <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="menu.html">Menu</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="reservations.html">Reservations</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="inner">
+      <h2>Contact Us</h2>
+      <p><strong>Address:</strong> 66 Hạ Long, Phường Vũng Tàu, Vung Tau, Vietnam 70000</p>
+      <p><strong>Phone:</strong> <a href="tel:+84798633339">+84 79 863 3339</a></p>
+      <p><strong>Email:</strong> <a href="mailto:bohobeergarden@gmail.com">bohobeergarden@gmail.com</a></p>
+
+      <h3>Send us a message</h3>
+      <form action="#" method="post">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required>
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+        <button class="btn-primary" type="submit">Send Message</button>
+      </form>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 BOHO Resturant. All rights reserved.</p>
+    <p><strong>Owner:</strong> Vung Tau &nbsp;|&nbsp; <strong>Phone:</strong> <a href="tel:+84798633339">+84 79 863 3339</a> &nbsp;|&nbsp; <strong>Email:</strong> <a href="mailto:bohobeergarden@gmail.com">bohobeergarden@gmail.com</a></p>
+    <p><strong>Address:</strong> 66 Ha Long, Vung Tau, Vietnam 70000</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

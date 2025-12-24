@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu — BOHO Resturant</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .flipbook-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .flipbook-viewer {
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.3);
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: 550px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1200px;
+    }
+
+    .flipbook-spread {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    /* Single-page flip layer (appears above the right page during forward flip
+       and above the left page during backward flip) */
+    .page-flip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      z-index: 50;
+    }
+
+    .page-flip .flip-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform-origin: left center;
+      backface-visibility: hidden;
+      box-shadow: 0 30px 72px rgba(0,0,0,0.36);
+      transition: transform 2s cubic-bezier(0.22, 0.61, 0.36, 1);
+      transform: rotateY(0deg);
+    }
+
+    /* subtle curl overlay applied to the flipping edge */
+    .page-flip .curl {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 160px;
+      right: 0;
+      pointer-events: none;
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.22) 28%, rgba(0,0,0,0.18) 60%, rgba(0,0,0,0.32) 100%);
+      transform-origin: left center;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 2s cubic-bezier(0.22, 0.61, 0.36, 1);
+      filter: blur(2px);
+      mix-blend-mode: multiply;
+    }
+
+    /* adjust curl placement for backward flips - hinge on right edge */
+    .page-flip.backward .curl {
+      right: 0;
+      left: auto;
+      transform-origin: right center;
+    }
+
+    /* When flipping backward (left side), hinge on right edge */
+    .page-flip.backward .flip-image {
+      transform-origin: right center;
+    }
+
+    .flipbook-page-container {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flipbook-page-container.left {
+      border-right: 2px solid rgba(0,0,0,0.05);
+      box-shadow: inset -5px 0 15px rgba(0,0,0,0.05);
+    }
+
+    .flipbook-page-container.right {
+      box-shadow: inset 5px 0 15px rgba(0,0,0,0.05);
+    }
+
+    .flipbook-page {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    .flipbook-controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .flipbook-btn {
+      padding: 12px 24px;
+      background: #A89158;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .flipbook-btn:hover:not(:disabled) {
+      background: #956f47;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .flipbook-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .flipbook-info {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      min-width: 120px;
+    }
+
+    @media (max-width: 768px) {
+      .flipbook-viewer {
+        height: 400px;
+      }
+      
+      .flipbook-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="brand">
+        <img src="assets/logo.jpeg" alt="BOHO Logo" class="site-logo">
+        <span class="site-title">🍽️ BOHO Resturant</span>
+      </a>
+      <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="menu.html">Menu Grid</a></li>
+          <li><a href="menu-flipbook.html" class="active">Menu Flipbook</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="reservations.html">Reservations</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="inner">
+      <h2>Our Menu</h2>
+
+      <div class="flipbook-container">
+        <!-- Two-Page Viewer with Flip Animation -->
+        <div class="flipbook-viewer" id="flipbookViewer">
+          <div class="flipbook-spread" id="flipbookSpread">
+            <!-- Left and right pages will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="flipbook-controls">
+          <button class="flipbook-btn" id="prevBtn" onclick="previousSpread()">← Previous</button>
+          <div class="flipbook-info">
+            <span id="pageInfo">Pages <span id="currentStart">1</span>-<span id="currentEnd">2</span> of <span id="totalPages">0</span></span>
+          </div>
+          <button class="flipbook-btn" id="nextBtn" onclick="nextSpread()">Next →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 BOHO Resturant. All rights reserved.</p>
+    <p><strong>Owner:</strong> Vung Tau &nbsp;|&nbsp; <strong>Phone:</strong> <a href="tel:+84798633339">+84 79 863 3339</a> &nbsp;|&nbsp; <strong>Email:</strong> <a href="mailto:bohobeergarden@gmail.com">bohobeergarden@gmail.com</a></p>
+    <p><strong>Address:</strong> 66 Ha Long, Vung Tau, Vietnam 70000</p>
+  </footer>
+
+  <script>
+    // Flipbook configuration
+    const menuPages = [
+      'assets/Menu Pages/cover page.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.30.21 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.30.51 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.31.12 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.31.37 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.33.07 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.33.30 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.33.53 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.34.17 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.34.37 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.35.22 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.35.44 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.36.03 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.36.24 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.36.42 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.37.02 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.37.21 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.37.39 AM.png',
+      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.37.58 AM.png',
+      'assets/Menu Pages/Ending Page.png'
+    ];
+
+    let currentSpreadIndex = 0;
+    let isFlipping = false;
+
+    function initFlipbook() {
+      document.getElementById('totalPages').textContent = menuPages.length;
+      renderSpread(0);
+      updateControls();
+    }
+
+    function renderSpread(spreadIndex) {
+      const spread = document.getElementById('flipbookSpread');
+      spread.innerHTML = '';
+
+      const leftPageIdx = spreadIndex * 2;
+      const rightPageIdx = spreadIndex * 2 + 1;
+
+      // Left page
+      const leftContainer = document.createElement('div');
+      leftContainer.className = 'flipbook-page-container left';
+      if (leftPageIdx < menuPages.length) {
+        const leftImg = document.createElement('img');
+        leftImg.src = menuPages[leftPageIdx];
+        leftImg.alt = `Page ${leftPageIdx + 1}`;
+        leftImg.className = 'flipbook-page';
+        leftImg.onerror = () => console.error(`Failed to load: ${menuPages[leftPageIdx]}`);
+        leftContainer.appendChild(leftImg);
+      }
+      spread.appendChild(leftContainer);
+
+      // Right page
+      const rightContainer = document.createElement('div');
+      rightContainer.className = 'flipbook-page-container right';
+      if (rightPageIdx < menuPages.length) {
+        const rightImg = document.createElement('img');
+        rightImg.src = menuPages[rightPageIdx];
+        rightImg.alt = `Page ${rightPageIdx + 1}`;
+        rightImg.className = 'flipbook-page';
+        rightImg.onerror = () => console.error(`Failed to load: ${menuPages[rightPageIdx]}`);
+        rightContainer.appendChild(rightImg);
+      }
+      spread.appendChild(rightContainer);
+
+      // Update page info
+      document.getElementById('currentStart').textContent = leftPageIdx + 1;
+      document.getElementById('currentEnd').textContent = Math.min(rightPageIdx + 1, menuPages.length);
+
+      currentSpreadIndex = spreadIndex;
+      updateControls();
+    }
+
+    function flipForward() {
+      if (isFlipping) return;
+      const maxSpreads = Math.ceil(menuPages.length / 2);
+      if (currentSpreadIndex >= maxSpreads - 1) return;
+      const spread = document.getElementById('flipbookSpread');
+      // ensure current spread is visible
+      renderSpread(currentSpreadIndex);
+      const rightContainer = spread.querySelector('.flipbook-page-container.right');
+      const rightImg = rightContainer ? rightContainer.querySelector('img') : null;
+      if (!rightImg) {
+        renderSpread(currentSpreadIndex + 1);
+        return;
+      }
+      // Create flip layer inside the right container
+      const flipLayer = document.createElement('div');
+      flipLayer.className = 'page-flip';
+      const flipImg = document.createElement('img');
+      flipImg.className = 'flip-image';
+      flipImg.src = rightImg.src;
+      flipImg.alt = rightImg.alt;
+      // curl overlay
+      const curl = document.createElement('div');
+      curl.className = 'curl';
+      flipLayer.appendChild(curl);
+      flipLayer.appendChild(flipImg);
+      rightContainer.appendChild(flipLayer);
+
+      // Disable controls while flipping
+      isFlipping = true;
+      document.getElementById('prevBtn').disabled = true;
+      document.getElementById('nextBtn').disabled = true;
+
+      // Slight initial tilt for realism
+      flipImg.style.transform = 'rotateY(0deg) rotateZ(0deg)';
+      // animate: rotateY to -180deg with a stronger Z rotation for curl effect
+      requestAnimationFrame(() => {
+        curl.style.opacity = '1';
+        curl.style.transform = 'translateX(0px)';
+        flipImg.style.transform = 'rotateY(-180deg) rotateZ(-14deg)';
+      });
+
+      // Swap page content quickly (400ms) so change happens early in flip
+      const swapTimer = setTimeout(() => {
+        if (flipLayer && flipLayer.parentNode) flipLayer.parentNode.removeChild(flipLayer);
+        renderSpread(currentSpreadIndex + 1);
+      }, 400);
+
+      // Fallback: reset after animation completes to ensure controls re-enable
+      const resetTimer = setTimeout(() => {
+        clearTimeout(swapTimer);
+        if (flipLayer && flipLayer.parentNode) flipLayer.parentNode.removeChild(flipLayer);
+        isFlipping = false;
+        updateControls();
+      }, 2000);
+    }
+
+    function flipBackward() {
+      if (isFlipping) return;
+      if (currentSpreadIndex <= 0) return;
+      
+      // Capture target index immediately to prevent double-click issue
+      isFlipping = true;
+      const targetSpreadIndex = currentSpreadIndex - 1;
+      
+      const spread = document.getElementById('flipbookSpread');
+      const leftContainer = spread.querySelector('.flipbook-page-container.left');
+      const leftImg = leftContainer ? leftContainer.querySelector('img') : null;
+      if (!leftImg) {
+        renderSpread(targetSpreadIndex);
+        isFlipping = false;
+        updateControls();
+        return;
+      }
+
+      // Hide original left image so flip layer is visible
+      leftImg.style.opacity = '0';
+
+      // Create flip layer; backward flip hinges on right edge, flips away to the right
+      const flipLayer = document.createElement('div');
+      flipLayer.className = 'page-flip backward';
+      const flipImg = document.createElement('img');
+      flipImg.className = 'flip-image';
+      flipImg.src = leftImg.src;
+      flipImg.alt = leftImg.alt;
+      const curl = document.createElement('div');
+      curl.className = 'curl';
+      flipLayer.appendChild(curl);
+      flipLayer.appendChild(flipImg);
+      leftContainer.appendChild(flipLayer);
+
+      // Disable controls while flipping
+      document.getElementById('prevBtn').disabled = true;
+      document.getElementById('nextBtn').disabled = true;
+
+      // Start visible and flip away to the right
+      flipImg.style.transform = 'rotateY(0deg) rotateZ(0deg)';
+      requestAnimationFrame(() => {
+        curl.style.opacity = '1';
+        flipImg.style.transform = 'rotateY(180deg) rotateZ(14deg)';
+      });
+
+      // Swap page content quickly (400ms)
+      const swapTimer = setTimeout(() => {
+        if (flipLayer && flipLayer.parentNode) flipLayer.parentNode.removeChild(flipLayer);
+        if (leftImg) leftImg.style.opacity = '1';
+        renderSpread(targetSpreadIndex);
+      }, 400);
+
+      // Reset after animation completes
+      const resetTimer = setTimeout(() => {
+        clearTimeout(swapTimer);
+        if (flipLayer && flipLayer.parentNode) flipLayer.parentNode.removeChild(flipLayer);
+        if (leftImg) leftImg.style.opacity = '1';
+        isFlipping = false;
+        updateControls();
+      }, 2000);
+    }
+
+    function nextSpread() {
+      flipForward();
+    }
+
+    function previousSpread() {
+      flipBackward();
+    }
+
+    function updateControls() {
+      const maxSpreads = Math.ceil(menuPages.length / 2);
+      document.getElementById('prevBtn').disabled = currentSpreadIndex === 0;
+      document.getElementById('nextBtn').disabled = currentSpreadIndex === maxSpreads - 1;
+    }
+
+    // Init on load
+    document.addEventListener('DOMContentLoaded', initFlipbook);
+
+    // Navigation toggle for small screens
+    const navToggle = document.querySelector('.nav-toggle');
+    const mainNav = document.getElementById('mainNav');
+    if (navToggle && mainNav) {
+      navToggle.addEventListener('click', () => {
+        mainNav.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!mainNav.contains(e.target) && !navToggle.contains(e.target)) {
+          mainNav.classList.remove('open');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

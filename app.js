@@ -7,6 +7,124 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbzjR2N6HnLgEQoJ9SzAQRllMz2mTwdqjwBldpKpAsJAgck7HVL7ZsNxEFVlkNLxXQ2vkQ/exec/usercallable';
 
 // ==========================================
+// Dummy Data (for frontend testing without backend)
+// ==========================================
+const dummyItems = [
+  {
+    id: 'item-1',
+    name: 'Grilled Snapper',
+    category: 'Seafood',
+    price: 18.50,
+    image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+    status: 'published',
+    created_at: '2025-01-01T00:00:00.000Z',
+    updated_at: '2025-01-01T00:00:00.000Z'
+  },
+  {
+    id: 'item-2',
+    name: 'Fresh Oysters',
+    category: 'Seafood',
+    price: 22.99,
+    image: 'https://images.unsplash.com/photo-1551632786-ad43a14da515?w=400&h=300&fit=crop',
+    status: 'published',
+    created_at: '2025-01-01T00:00:00.000Z',
+    updated_at: '2025-01-01T00:00:00.000Z'
+  },
+  {
+    id: 'item-3',
+    name: 'Caesar Salad',
+    category: 'Salads',
+    price: 8.99,
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop',
+    status: 'published',
+    created_at: '2025-01-01T00:00:00.000Z',
+    updated_at: '2025-01-01T00:00:00.000Z'
+  },
+  {
+    id: 'item-4',
+    name: 'Seafood Platter',
+    category: 'Seafood',
+    price: 42.99,
+    image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400&h=300&fit=crop',
+    status: 'published',
+    created_at: '2025-01-01T00:00:00.000Z',
+    updated_at: '2025-01-01T00:00:00.000Z'
+  },
+  {
+    id: 'item-5',
+    name: 'Tiramisu',
+    category: 'Dessert',
+    price: 6.99,
+    image: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=400&h=300&fit=crop',
+    status: 'published',
+    created_at: '2025-01-01T00:00:00.000Z',
+    updated_at: '2025-01-01T00:00:00.000Z'
+  },
+  {
+    id: 'item-6',
+    name: 'Pasta Carbonara',
+    category: 'Pasta',
+    price: 14.99,
+    image: 'https://images.unsplash.com/photo-1612874742237-415c69b41a11?w=400&h=300&fit=crop',
+    status: 'published',
+    created_at: '2025-01-01T00:00:00.000Z',
+    updated_at: '2025-01-01T00:00:00.000Z'
+  }
+];
+
+const dummyPosts = [
+  {
+    id: 'post-1',
+    name: 'John',
+    body: 'Amazing seafood! The grilled snapper was perfectly cooked.',
+    image: '',
+    created_at: '2025-12-20T10:30:00.000Z',
+    updated_at: '2025-12-20T10:30:00.000Z'
+  },
+  {
+    id: 'post-2',
+    name: 'Sarah',
+    body: 'Best restaurant in Vũng Tàu. Friendly staff and beautiful sea view!',
+    image: '',
+    created_at: '2025-12-19T15:45:00.000Z',
+    updated_at: '2025-12-19T15:45:00.000Z'
+  },
+  {
+    id: 'post-3',
+    name: 'Anonymous',
+    body: 'Love coming here with family. The fresh oysters are delicious!',
+    image: '',
+    created_at: '2025-12-18T18:00:00.000Z',
+    updated_at: '2025-12-18T18:00:00.000Z'
+  }
+];
+
+const dummyReviews = {
+  'item-1': [
+    {
+      id: 'review-1',
+      item_id: 'item-1',
+      name: 'Mike',
+      body: 'Perfect grilling and fresh fish. Highly recommend!',
+      like_count: 3,
+      created_at: '2025-12-18T12:00:00.000Z',
+      updated_at: '2025-12-18T12:00:00.000Z'
+    }
+  ],
+  'item-2': [
+    {
+      id: 'review-2',
+      item_id: 'item-2',
+      name: 'Lisa',
+      body: 'Freshest oysters I\'ve had. Worth every penny!',
+      like_count: 5,
+      created_at: '2025-12-17T14:30:00.000Z',
+      updated_at: '2025-12-17T14:30:00.000Z'
+    }
+  ]
+};
+
+// ==========================================
 // State Management
 // ==========================================
 const state = {
@@ -31,15 +149,20 @@ function closeModal(modalId) {
 
 function setupModalListeners() {
   // Item Modal
-  document.querySelector('#itemModal .close').addEventListener('click', () => closeModal('itemModal'));
-  document.getElementById('newReviewBtn')?.addEventListener('click', () => openModal('reviewModal'));
+  const itemModalClose = document.querySelector('#itemModal .close');
+  if (itemModalClose) itemModalClose.addEventListener('click', () => closeModal('itemModal'));
+  const newReviewBtn = document.getElementById('newReviewBtn');
+  if (newReviewBtn) newReviewBtn.addEventListener('click', () => openModal('reviewModal'));
 
   // Post Modal
-  document.querySelector('#postModal .close').addEventListener('click', () => closeModal('postModal'));
-  document.getElementById('newPostBtn').addEventListener('click', () => openModal('postModal'));
+  const postModalClose = document.querySelector('#postModal .close');
+  if (postModalClose) postModalClose.addEventListener('click', () => closeModal('postModal'));
+  const newPostBtn = document.getElementById('newPostBtn');
+  if (newPostBtn) newPostBtn.addEventListener('click', () => openModal('postModal'));
 
   // Review Modal
-  document.querySelector('#reviewModal .close').addEventListener('click', () => closeModal('reviewModal'));
+  const reviewModalClose = document.querySelector('#reviewModal .close');
+  if (reviewModalClose) reviewModalClose.addEventListener('click', () => closeModal('reviewModal'));
 
   // Close modal when clicking outside
   window.addEventListener('click', (e) => {
@@ -79,22 +202,44 @@ async function apiCall(action, data = {}) {
 }
 
 // ==========================================
+// API GET helper to avoid preflight for reads
+async function apiGet(action, params = {}) {
+  try {
+    const url = new URL(API_URL);
+    url.searchParams.set('action', action);
+    Object.keys(params).forEach(key => {
+      if (params[key] !== undefined) url.searchParams.set(key, params[key]);
+    });
+
+    const response = await fetch(url.toString(), { method: 'GET' });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Unknown error');
+    return result.data;
+  } catch (error) {
+    console.error('API GET Error:', error);
+    throw error;
+  }
+}
+
+// ==========================================
 // Items Functions
 // ==========================================
 async function loadItems() {
   try {
-    const items = await apiCall('getItems');
-    state.items = items;
+    // Use dummy data instead of API
+    state.items = dummyItems;
     
     // Extract unique categories
-    const uniqueCategories = [...new Set(items.map(item => item.category))];
+    const uniqueCategories = [...new Set(state.items.map(item => item.category))];
     state.categories = uniqueCategories;
     
     renderCategories();
     filterAndRenderItems();
   } catch (error) {
     console.error('Failed to load items:', error);
-    document.getElementById('itemsContainer').innerHTML = '<div class="empty-state"><p>Failed to load items</p></div>';
+    const container = document.getElementById('itemsContainer');
+    if (container) container.innerHTML = '<div class="empty-state"><p>Failed to load items</p></div>';
   }
 }
 
@@ -188,12 +333,13 @@ async function showItemDetails(itemId) {
 // ==========================================
 async function loadPosts() {
   try {
-    const posts = await apiCall('getPosts');
-    state.posts = posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    // Use dummy data instead of API
+    state.posts = dummyPosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     renderPosts();
   } catch (error) {
     console.error('Failed to load posts:', error);
-    document.getElementById('postsContainer').innerHTML = '<div class="empty-state"><p>Failed to load posts</p></div>';
+    const container = document.getElementById('postsContainer');
+    if (container) container.innerHTML = '<div class="empty-state"><p>Failed to load posts</p></div>';
   }
 }
 
@@ -262,12 +408,13 @@ async function createPost(event) {
 // ==========================================
 async function loadReviews(itemId) {
   try {
-    const reviews = await apiCall('getReviews', { itemId });
-    state.reviews = reviews.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    // Use dummy data instead of API
+    state.reviews = (dummyReviews[itemId] || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     renderReviews();
   } catch (error) {
     console.error('Failed to load reviews:', error);
-    document.getElementById('reviewsContainer').innerHTML = '<div class="empty-state"><p>Failed to load reviews</p></div>';
+    const container = document.getElementById('reviewsContainer');
+    if (container) container.innerHTML = '<div class="empty-state"><p>Failed to load reviews</p></div>';
   }
 }
 
@@ -358,10 +505,36 @@ function escapeHtml(text) {
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
   setupModalListeners();
-  document.getElementById('postForm').addEventListener('submit', createPost);
-  document.getElementById('reviewForm').addEventListener('submit', createReview);
+  const postForm = document.getElementById('postForm');
+  if (postForm) postForm.addEventListener('submit', createPost);
 
-  // Load initial data
-  await loadItems();
-  await loadPosts();
+  const reviewForm = document.getElementById('reviewForm');
+  if (reviewForm) reviewForm.addEventListener('submit', createReview);
+
+  // Load initial data only for pages that have the containers
+  if (document.getElementById('itemsContainer')) {
+    await loadItems();
+  }
+  if (document.getElementById('postsContainer')) {
+    await loadPosts();
+  }
+});
+
+// Navigation toggle for small screens
+document.addEventListener('DOMContentLoaded', () => {
+  const navToggle = document.querySelector('.nav-toggle');
+  const mainNav = document.getElementById('mainNav');
+
+  if (navToggle && mainNav) {
+    navToggle.addEventListener('click', () => {
+      mainNav.classList.toggle('open');
+    });
+
+    // Close nav when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!mainNav.contains(e.target) && !navToggle.contains(e.target)) {
+        mainNav.classList.remove('open');
+      }
+    });
+  }
 });

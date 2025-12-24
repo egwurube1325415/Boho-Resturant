@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu — BOHO Resturant</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="brand">
+        <img src="assets/logo.jpeg" alt="BOHO Logo" class="site-logo">
+        <span class="site-title">🍽️ BOHO Resturant</span>
+      </a>
+      <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="menu.html" class="active">Menu</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="reservations.html">Reservations</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="inner">
+      <h2>Our Menu</h2>
+      <p>Explore our selection of fresh seafood, salads, and house specialties.</p>
+
+      <!-- Category Filters -->
+      <div class="category-section">
+        <h3>Menu</h3>
+        <ul class="category" id="categoryList">
+          <li class="active"><a href="#" data-category="all">All Items</a></li>
+        </ul>
+      </div>
+
+      <section class="items-section">
+        <h3>Chef's Specials</h3>
+        <div class="items-grid" id="itemsContainer">
+          <div class="item-card">
+            <img class="item-image" src="https://via.placeholder.com/400x300?text=Seafood+Platter" alt="Seafood Platter">
+            <div class="item-info">
+              <p class="item-name">Seafood Platter</p>
+              <p class="item-price">$24.99</p>
+              <p class="item-category">Seafood</p>
+            </div>
+          </div>
+
+          <div class="item-card">
+            <img class="item-image" src="https://via.placeholder.com/400x300?text=Grilled+Fish" alt="Grilled Fish">
+            <div class="item-info">
+              <p class="item-name">Grilled Snapper</p>
+              <p class="item-price">$18.50</p>
+              <p class="item-category">Grilled</p>
+            </div>
+          </div>
+
+          <div class="item-card">
+            <img class="item-image" src="https://via.placeholder.com/400x300?text=Tiramisu" alt="Tiramisu">
+            <div class="item-info">
+              <p class="item-name">Tiramisu</p>
+              <p class="item-price">$6.99</p>
+              <p class="item-category">Dessert</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+        <!-- Item Details Modal -->
+        <div id="itemModal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+              <img id="modalImage" src="" alt="">
+              <h3 id="modalName"></h3>
+              <p class="price" id="modalPrice"></p>
+              <p id="modalCategory"></p>
+
+              <!-- Reviews Section -->
+              <div class="reviews-section">
+                <h4>Reviews</h4>
+                <button class="btn-secondary" id="newReviewBtn">Add Review</button>
+                <div class="reviews-list" id="reviewsContainer">
+                  <!-- Reviews will be loaded here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review Form Modal -->
+        <div id="reviewModal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Write a Review</h3>
+            <form id="reviewForm">
+              <div class="form-group">
+                <label for="reviewName">Name:</label>
+                <input type="text" id="reviewName" name="reviewName" placeholder="Your name" maxlength="50" required>
+              </div>
+              <div class="form-group">
+                <label for="reviewBody">Review:</label>
+                <textarea id="reviewBody" name="reviewBody" placeholder="Write your review..." maxlength="1000" rows="6" required></textarea>
+              </div>
+              <button type="submit" class="btn-primary">Submit Review</button>
+            </form>
+          </div>
+        </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 BOHO Resturant. All rights reserved.</p>
+    <p><strong>Owner:</strong> Vung Tau &nbsp;|&nbsp; <strong>Phone:</strong> <a href="tel:+84798633339">+84 79 863 3339</a> &nbsp;|&nbsp; <strong>Email:</strong> <a href="mailto:bohobeergarden@gmail.com">bohobeergarden@gmail.com</a></p>
+    <p><strong>Address:</strong> 66 Ha Long, Vung Tau, Vietnam 70000</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
