@@ -205,15 +205,15 @@ h4 {
   flex: 1;
 }
 
-/* Welcome section styling for visibility over video */
-.inner h2 {
+/* Welcome section styling for home page only (over video) */
+.welcome-hero h2 {
   color: white;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
   font-size: 36px;
   margin-bottom: 20px;
 }
 
-.inner p {
+.welcome-hero p {
   color: white;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
   font-size: 18px;
