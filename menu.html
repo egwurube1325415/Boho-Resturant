@@ -95,6 +95,104 @@
     #reviewModal {
       display: none !important;
     }
+
+    /* Cart bar styles */
+    .cart-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .cart-bar span {
+      font-size: 16px;
+    }
+
+    .cart-bar .btn-primary {
+      background: #e67e22;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .cart-bar .btn-primary:hover {
+      background: #d35400;
+    }
+
+    /* Checkout modal styles */
+    #checkoutModal {
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0,0,0);
+      background-color: rgba(0,0,0,0.4);
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #paymentSuccess {
+      display: none;
+      color: #2a7a2a;
+      margin-top: 16px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -159,6 +257,7 @@
               <p class="item-name">Seafood Platter</p>
               <p class="item-price">$24.99</p>
               <p class="item-category">Seafood</p>
+              <button class="btn-primary add-to-cart-btn">Add to Cart</button>
             </div>
           </div>
 
@@ -168,6 +267,7 @@
               <p class="item-name">Grilled Snapper</p>
               <p class="item-price">$18.50</p>
               <p class="item-category">Grilled</p>
+              <button class="btn-primary add-to-cart-btn">Add to Cart</button>
             </div>
           </div>
 
@@ -177,10 +277,46 @@
               <p class="item-name">Tiramisu</p>
               <p class="item-price">$6.99</p>
               <p class="item-category">Dessert</p>
+              <button class="btn-primary add-to-cart-btn">Add to Cart</button>
             </div>
           </div>
         </div>
       </section>
+
+      <!-- Cart UI -->
+      <div class="cart-bar" id="cartBar" style="display:none;">
+        <span>🛒 <span id="cartCount">0</span> item(s) in cart</span>
+        <button class="btn-primary" id="checkoutBtn">Checkout</button>
+      </div>
+
+      <!-- Checkout Modal -->
+      <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+          <span class="close" id="closeCheckout">&times;</span>
+          <h3>Checkout</h3>
+          <div id="checkoutSummary"></div>
+          <form id="paymentForm">
+            <div class="form-group">
+              <label for="cardName">Name on Card</label>
+              <input id="cardName" name="cardName" required>
+            </div>
+            <div class="form-group">
+              <label for="cardNumber">Card Number</label>
+              <input id="cardNumber" name="cardNumber" maxlength="19" required>
+            </div>
+            <div class="form-group">
+              <label for="cardExpiry">Expiry</label>
+              <input id="cardExpiry" name="cardExpiry" placeholder="MM/YY" maxlength="5" required>
+            </div>
+            <div class="form-group">
+              <label for="cardCVC">CVC</label>
+              <input id="cardCVC" name="cardCVC" maxlength="4" required>
+            </div>
+            <button class="btn-primary" type="submit">Pay</button>
+          </form>
+          <div id="paymentSuccess" style="display:none; color: #2a7a2a; margin-top: 16px; font-weight: bold;">Payment successful! Thank you for your order.</div>
+        </div>
+      </div>
 
   <footer class="footer">
       <p>&copy; 2025 BOHO Resturant. All rights reserved.
@@ -231,6 +367,71 @@
       }
     `;
     document.head.appendChild(style);
+
+    // Cart and Checkout Logic
+    let cart = [];
+    const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
+    const cartBar = document.getElementById('cartBar');
+    const cartCountSpan = document.getElementById('cartCount');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const checkoutModal = document.getElementById('checkoutModal');
+    const closeCheckout = document.getElementById('closeCheckout');
+    const paymentForm = document.getElementById('paymentForm');
+    const paymentSuccess = document.getElementById('paymentSuccess');
+    const checkoutSummary = document.getElementById('checkoutSummary');
+
+    function updateCartBar() {
+      cartCountSpan.textContent = cart.length;
+      cartBar.style.display = cart.length > 0 ? 'flex' : 'none';
+    }
+
+    addToCartBtns.forEach((btn) => {
+      btn.addEventListener('click', function() {
+        const card = btn.closest('.item-card');
+        const name = card.querySelector('.item-name').textContent;
+        const price = card.querySelector('.item-price').textContent;
+        cart.push({ name, price });
+        updateCartBar();
+      });
+    });
+
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', function() {
+        // Build summary
+        let html = '';
+        let total = 0;
+        cart.forEach(item => {
+          html += `<p><strong>${item.name}</strong> - ${item.price}</p>`;
+          total += parseFloat(item.price.replace(/[^\d.]/g, ''));
+        });
+        html += `<p><strong>Total:</strong> $${total.toFixed(2)}</p>`;
+        checkoutSummary.innerHTML = html;
+        checkoutModal.style.display = 'flex';
+      });
+    }
+    if (closeCheckout) {
+      closeCheckout.addEventListener('click', function() {
+        checkoutModal.style.display = 'none';
+        paymentSuccess.style.display = 'none';
+        paymentForm.style.display = 'block';
+      });
+    }
+    if (paymentForm) {
+      paymentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        paymentForm.style.display = 'none';
+        paymentSuccess.style.display = 'block';
+        cart = [];
+        updateCartBar();
+      });
+    }
+    window.onclick = function(event) {
+      if (event.target === checkoutModal) {
+        checkoutModal.style.display = 'none';
+        paymentSuccess.style.display = 'none';
+        paymentForm.style.display = 'block';
+      }
+    }
   </script>
 </body>
 </html>

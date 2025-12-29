@@ -791,90 +791,146 @@ ul.category li.active a:visited {
   font-size: 16px;
 }
 
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-  .content {
-    padding: 20px 15px 0 15px;
-    min-height: calc(100vh - 150px);
-  }
-
-  .video-hero {
-    height: 350px;
-  }
-
-  .header-content {
-    padding: 0 15px;
-  }
-
-  h1 {
-    font-size: 24px;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
-
-  ul.category {
-    flex-direction: column;
-  }
-
-  ul.category li {
-    width: 100%;
-  }
-
-  ul.category li a {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .items-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-  }
-
-  .modal-content {
-    width: 95%;
-    padding: 20px;
-  }
-
-  .modal-body {
-    margin-top: 20px;
-  }
+/* Chef's Special Section */
+.chefs-special-section {
+  margin: 60px auto 30px auto;
+  max-width: 700px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 32px 24px 24px 24px;
+}
+.chefs-special-section h2 {
+  margin-top: 0;
+  color: #A89158;
+  text-align: center;
+}
+.chefs-special-card {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.chefs-special-img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  background: #f0f0f0;
+}
+.chefs-special-info {
+  flex: 1;
+  min-width: 220px;
+}
+.chefs-special-info h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+.chefs-special-desc {
+  color: #555;
+  margin-bottom: 18px;
+}
+.chefs-special-bottom {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.chefs-special-price {
+  color: #A89158;
+  font-size: 22px;
+  font-weight: bold;
 }
 
-@media screen and (max-width: 480px) {
-  .items-grid {
-    grid-template-columns: 1fr;
-  }
+/* Cart Bar */
+.cart-bar {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: #fff;
+  border: 1px solid #A89158;
+  border-radius: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  z-index: 1001;
+  font-size: 16px;
+}
 
-  .video-hero {
-    height: 250px;
+/* Checkout Modal */
+#checkoutModal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.4);
+  align-items: center;
+  justify-content: center;
+}
+#checkoutModal .modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 32px 28px 32px;
+  max-width: 400px;
+  width: 95vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  position: relative;
+}
+#checkoutModal .close {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  font-size: 28px;
+  color: #aaa;
+  cursor: pointer;
+}
+#checkoutModal .close:hover {
+  color: #A89158;
+}
+#checkoutModal h3 {
+  margin-top: 0;
+  color: #A89158;
+}
+#checkoutModal .form-group label {
+  color: #333;
+  font-weight: 500;
+}
+#checkoutModal .form-group input {
+  width: 100%;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 15px;
+}
+#checkoutModal button[type="submit"] {
+  width: 100%;
+  margin-top: 10px;
+}
+@media (max-width: 700px) {
+  .chefs-special-section {
+    padding: 18px 6px 12px 6px;
   }
-
-  .header-content {
-    padding: 0 10px;
-  }
-
-  h1 {
-    font-size: 20px;
-  }
-
-  .post-header,
-  .review-header {
+  .chefs-special-card {
     flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
   }
-
-  .post-date,
-  .review-date {
-    margin-top: 5px;
+  .chefs-special-img {
+    width: 100%;
+    height: 160px;
+    border-radius: 10px;
   }
-
-  .footer {
-    padding: 20px 15px;
-  }
-
-  .footer p {
-    font-size: 12px;
+  .cart-bar {
+    right: 10px;
+    bottom: 10px;
+    padding: 10px 14px;
+    font-size: 15px;
   }
 }

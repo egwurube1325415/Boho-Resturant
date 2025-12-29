@@ -47,6 +47,61 @@
               <a class="btn-secondary" href="about.html">Read Posts</a>
             </div>
         </div>
+
+        <!-- Chef's Special Section -->
+        <section class="chefs-special-section">
+          <h2>Chef's Special</h2>
+          <div class="chefs-special-card">
+            <img src="assets/Menu Pages/Screen Shot 2025-12-24 at 9.31.12 AM.png" alt="Chef's Special" class="chefs-special-img">
+            <div class="chefs-special-info">
+              <h3>Grilled Lobster with Garlic Butter</h3>
+              <p class="chefs-special-desc">Succulent lobster grilled to perfection, topped with aromatic garlic butter and fresh herbs. Served with seasonal vegetables.</p>
+              <div class="chefs-special-bottom">
+                <span class="chefs-special-price">₫850,000</span>
+                <button class="btn-primary" id="addToCartBtn">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cart UI -->
+        <div class="cart-bar" id="cartBar" style="display:none;">
+          <span>🛒 <span id="cartCount">1</span> item in cart</span>
+          <button class="btn-primary" id="checkoutBtn">Checkout</button>
+        </div>
+
+        <!-- Checkout Modal -->
+        <div class="modal" id="checkoutModal">
+          <div class="modal-content">
+            <span class="close" id="closeCheckout">&times;</span>
+            <h3>Checkout</h3>
+            <div id="checkoutSummary">
+              <p><strong>Item:</strong> Grilled Lobster with Garlic Butter</p>
+              <p><strong>Price:</strong> ₫850,000</p>
+              <p><strong>Total:</strong> ₫850,000</p>
+            </div>
+            <form id="paymentForm">
+              <div class="form-group">
+                <label for="cardName">Name on Card</label>
+                <input id="cardName" name="cardName" required>
+              </div>
+              <div class="form-group">
+                <label for="cardNumber">Card Number</label>
+                <input id="cardNumber" name="cardNumber" maxlength="19" required>
+              </div>
+              <div class="form-group">
+                <label for="cardExpiry">Expiry</label>
+                <input id="cardExpiry" name="cardExpiry" placeholder="MM/YY" maxlength="5" required>
+              </div>
+              <div class="form-group">
+                <label for="cardCVC">CVC</label>
+                <input id="cardCVC" name="cardCVC" maxlength="4" required>
+              </div>
+              <button class="btn-primary" type="submit">Pay ₫850,000</button>
+            </form>
+            <div id="paymentSuccess" style="display:none; color: #2a7a2a; margin-top: 16px; font-weight: bold;">Payment successful! Thank you for your order.</div>
+          </div>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -61,5 +116,54 @@
     </footer>
 
     <script src="app.js"></script>
+    <script>
+    // Chef's Special Add to Cart Logic
+    let cartCount = 0;
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    const cartBar = document.getElementById('cartBar');
+    const cartCountSpan = document.getElementById('cartCount');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const checkoutModal = document.getElementById('checkoutModal');
+    const closeCheckout = document.getElementById('closeCheckout');
+    const paymentForm = document.getElementById('paymentForm');
+    const paymentSuccess = document.getElementById('paymentSuccess');
+
+    if (addToCartBtn) {
+      addToCartBtn.addEventListener('click', function() {
+        cartCount = 1;
+        cartBar.style.display = 'flex';
+        cartCountSpan.textContent = cartCount;
+      });
+    }
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', function() {
+        checkoutModal.style.display = 'flex';
+      });
+    }
+    if (closeCheckout) {
+      closeCheckout.addEventListener('click', function() {
+        checkoutModal.style.display = 'none';
+        paymentSuccess.style.display = 'none';
+        paymentForm.style.display = 'block';
+      });
+    }
+    if (paymentForm) {
+      paymentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        paymentForm.style.display = 'none';
+        paymentSuccess.style.display = 'block';
+        cartBar.style.display = 'none';
+        cartCount = 0;
+      });
+    }
+    // Close modal on outside click
+    window.onclick = function(event) {
+      if (event.target === checkoutModal) {
+        checkoutModal.style.display = 'none';
+        paymentSuccess.style.display = 'none';
+        paymentForm.style.display = 'block';
+      }
+    }
+    </script>
 </body>
 </html>
