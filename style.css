@@ -1,27 +1,3 @@
-/* --- Footer Mobile Visual Consistency --- */
-@media (max-width: 600px) {
-  .footer {
-    background: rgba(30,30,30,0.92);
-    color: #fff;
-    border-radius: 14px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
-    padding: 24px 12px;
-    margin: 18px 8px 0 8px;
-    font-size: 15px;
-    width: auto;
-    max-width: 100vw;
-    box-sizing: border-box;
-  }
-  .footer a,
-  .footer .social-link {
-    color: #A89158 !important;
-    font-weight: bold;
-  }
-  .footer p {
-    margin: 10px 0;
-    font-size: 15px;
-  }
-}
 /* --- Contact Page Mobile Card Visual Match to Home --- */
 @media (max-width: 600px) {
   .contact-page .inner {

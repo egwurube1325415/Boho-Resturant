@@ -6,6 +6,64 @@
   <title>Menu — BOHO Resturant</title>
   <link rel="stylesheet" href="style.css">
   <style>
+        @media (max-width: 600px) {
+          .flipbook-viewer {
+            height: 120vw;
+            min-height: 70vw;
+            max-height: 140vw;
+          }
+          .flipbook-spread {
+            flex-direction: column;
+            align-items: center;
+            width: 100% !important;
+            min-width: 0;
+          }
+          .flipbook-page-container.left,
+          .flipbook-page-container.right {
+            width: 100% !important;
+            max-width: 100vw !important;
+            border: none;
+            box-shadow: none;
+            margin: 0 auto;
+          }
+          .flipbook-page {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100vw !important;
+            max-height: 110vw !important;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            border-radius: 16px;
+          }
+          .flipbook-controls {
+            flex-direction: row;
+            gap: 6px;
+            margin-top: 6px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex-wrap: nowrap;
+          }
+          .flipbook-info {
+            font-size: 13px;
+            min-width: unset;
+            margin: 0 4px;
+            white-space: nowrap;
+          }
+          .flipbook-btn {
+            min-width: 36px;
+            padding: 6px 10px;
+            font-size: 18px;
+            margin: 0;
+            border-radius: 8px;
+            background: #A89158;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+          }
+          .flipbook-btn span { display: none; }
+        }
     .flipbook-container {
       max-width: 1000px;
       margin: 40px auto;
@@ -217,11 +275,11 @@
 
         <!-- Controls -->
         <div class="flipbook-controls">
-          <button class="flipbook-btn" id="prevBtn" onclick="previousSpread()">← Previous</button>
+          <button class="flipbook-btn" id="prevBtn" onclick="previousSpread()">&#8592;<span> Previous</span></button>
           <div class="flipbook-info">
-            <span id="pageInfo">Pages <span id="currentStart">1</span>-<span id="currentEnd">2</span> of <span id="totalPages">0</span></span>
+            <span id="pageInfo"><span id="currentStart">1</span>-<span id="currentEnd">2</span> / <span id="totalPages">0</span></span>
           </div>
-          <button class="flipbook-btn" id="nextBtn" onclick="nextSpread()">Next →</button>
+          <button class="flipbook-btn" id="nextBtn" onclick="nextSpread()"><span>Next </span>&#8594;</button>
         </div>
       </div>
     </div>
@@ -274,41 +332,56 @@
     function renderSpread(spreadIndex) {
       const spread = document.getElementById('flipbookSpread');
       spread.innerHTML = '';
-
-      const leftPageIdx = spreadIndex * 2;
-      const rightPageIdx = spreadIndex * 2 + 1;
-
-      // Left page
-      const leftContainer = document.createElement('div');
-      leftContainer.className = 'flipbook-page-container left';
-      if (leftPageIdx < menuPages.length) {
-        const leftImg = document.createElement('img');
-        leftImg.src = menuPages[leftPageIdx];
-        leftImg.alt = `Page ${leftPageIdx + 1}`;
-        leftImg.className = 'flipbook-page';
-        leftImg.onerror = () => console.error(`Failed to load: ${menuPages[leftPageIdx]}`);
-        leftContainer.appendChild(leftImg);
+      const isMobile = window.innerWidth <= 600;
+      if (isMobile) {
+        // Single page view for mobile with turn effect
+        const pageIdx = spreadIndex;
+        const container = document.createElement('div');
+        container.className = 'flipbook-page-container left';
+        if (pageIdx < menuPages.length) {
+          const img = document.createElement('img');
+          img.src = menuPages[pageIdx];
+          img.alt = `Page ${pageIdx + 1}`;
+          img.className = 'flipbook-page';
+          img.onerror = () => console.error(`Failed to load: ${menuPages[pageIdx]}`);
+          container.appendChild(img);
+        }
+        spread.appendChild(container);
+        document.getElementById('currentStart').textContent = pageIdx + 1;
+        document.getElementById('currentEnd').textContent = pageIdx + 1;
+        currentSpreadIndex = pageIdx;
+      } else {
+        // Two-page view for desktop/tablet
+        const leftPageIdx = spreadIndex * 2;
+        const rightPageIdx = spreadIndex * 2 + 1;
+        // Left page
+        const leftContainer = document.createElement('div');
+        leftContainer.className = 'flipbook-page-container left';
+        if (leftPageIdx < menuPages.length) {
+          const leftImg = document.createElement('img');
+          leftImg.src = menuPages[leftPageIdx];
+          leftImg.alt = `Page ${leftPageIdx + 1}`;
+          leftImg.className = 'flipbook-page';
+          leftImg.onerror = () => console.error(`Failed to load: ${menuPages[leftPageIdx]}`);
+          leftContainer.appendChild(leftImg);
+        }
+        spread.appendChild(leftContainer);
+        // Right page
+        const rightContainer = document.createElement('div');
+        rightContainer.className = 'flipbook-page-container right';
+        if (rightPageIdx < menuPages.length) {
+          const rightImg = document.createElement('img');
+          rightImg.src = menuPages[rightPageIdx];
+          rightImg.alt = `Page ${rightPageIdx + 1}`;
+          rightImg.className = 'flipbook-page';
+          rightImg.onerror = () => console.error(`Failed to load: ${menuPages[rightPageIdx]}`);
+          rightContainer.appendChild(rightImg);
+        }
+        spread.appendChild(rightContainer);
+        document.getElementById('currentStart').textContent = leftPageIdx + 1;
+        document.getElementById('currentEnd').textContent = Math.min(rightPageIdx + 1, menuPages.length);
+        currentSpreadIndex = spreadIndex;
       }
-      spread.appendChild(leftContainer);
-
-      // Right page
-      const rightContainer = document.createElement('div');
-      rightContainer.className = 'flipbook-page-container right';
-      if (rightPageIdx < menuPages.length) {
-        const rightImg = document.createElement('img');
-        rightImg.src = menuPages[rightPageIdx];
-        rightImg.alt = `Page ${rightPageIdx + 1}`;
-        rightImg.className = 'flipbook-page';
-        rightImg.onerror = () => console.error(`Failed to load: ${menuPages[rightPageIdx]}`);
-        rightContainer.appendChild(rightImg);
-      }
-      spread.appendChild(rightContainer);
-
-      // Update page info
-      document.getElementById('currentStart').textContent = leftPageIdx + 1;
-      document.getElementById('currentEnd').textContent = Math.min(rightPageIdx + 1, menuPages.length);
-
-      currentSpreadIndex = spreadIndex;
       updateControls();
     }
 
@@ -431,18 +504,66 @@
     }
 
     function nextSpread() {
-      flipForward();
+      if (window.innerWidth <= 600) {
+        if (currentSpreadIndex < menuPages.length - 1) {
+          // Add turn effect for mobile
+          const spread = document.getElementById('flipbookSpread');
+          const img = spread.querySelector('.flipbook-page');
+          if (img) {
+            img.style.transition = 'transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1)';
+            img.style.transform = 'rotateY(-90deg) scale(0.9)';
+            setTimeout(() => {
+              renderSpread(currentSpreadIndex + 1);
+            }, 300);
+          } else {
+            renderSpread(currentSpreadIndex + 1);
+          }
+        }
+      } else {
+        flipForward();
+      }
     }
 
     function previousSpread() {
-      flipBackward();
+      if (window.innerWidth <= 600) {
+        if (currentSpreadIndex > 0) {
+          // Add turn effect for mobile
+          const spread = document.getElementById('flipbookSpread');
+          const img = spread.querySelector('.flipbook-page');
+          if (img) {
+            img.style.transition = 'transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1)';
+            img.style.transform = 'rotateY(90deg) scale(0.9)';
+            setTimeout(() => {
+              renderSpread(currentSpreadIndex - 1);
+            }, 300);
+          } else {
+            renderSpread(currentSpreadIndex - 1);
+          }
+        }
+      } else {
+        flipBackward();
+      }
     }
 
     function updateControls() {
-      const maxSpreads = Math.ceil(menuPages.length / 2);
-      document.getElementById('prevBtn').disabled = currentSpreadIndex === 0;
-      document.getElementById('nextBtn').disabled = currentSpreadIndex === maxSpreads - 1;
+      if (window.innerWidth <= 600) {
+        document.getElementById('prevBtn').disabled = currentSpreadIndex === 0;
+        document.getElementById('nextBtn').disabled = currentSpreadIndex === menuPages.length - 1;
+      } else {
+        const maxSpreads = Math.ceil(menuPages.length / 2);
+        document.getElementById('prevBtn').disabled = currentSpreadIndex === 0;
+        document.getElementById('nextBtn').disabled = currentSpreadIndex === maxSpreads - 1;
+      }
     }
+
+    // Re-render on resize for responsiveness
+    window.addEventListener('resize', function() {
+      if (window.innerWidth <= 600) {
+        renderSpread(currentSpreadIndex);
+      } else {
+        renderSpread(Math.floor(currentSpreadIndex / 2));
+      }
+    });
 
     // Init on load
     document.addEventListener('DOMContentLoaded', initFlipbook);
