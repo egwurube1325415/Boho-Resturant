@@ -1,0 +1,22 @@
+# Ignore large video and binary files
+assets/*.mp4
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.flv
+*.wmv
+*.mpg
+*.mpeg
+*.3gp
+*.ogg
+*.ogv
+*.wav
+*.flac
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+*.iso
