@@ -6,6 +6,97 @@
   <title>Menu — BOHO Resturant</title>
   <link rel="stylesheet" href="style.css">
   <style>
+            /* Make all text white with shadow for readability over video */
+            .header-transparent, .header-transparent .main-nav a, .header-transparent .site-title,
+            .inner, .inner h2, .inner h3, .inner h4, .inner p, .flipbook-description, .category-section, .items-section, .cart-bar, .footer, .item-info, .item-name, .item-price, .item-category {
+              color: #fff !important;
+              text-shadow: 0 2px 8px #000, 0 1px 0 #000;
+            }
+            .flipbook-description {
+              color: #fff !important;
+              text-shadow: 0 2px 8px #000, 0 1px 0 #000;
+            }
+            .category-section h3 {
+              color: #fff !important;
+              text-shadow: 0 2px 8px #000, 0 1px 0 #000;
+            }
+            .category {
+              background: none !important;
+            }
+            .category li a {
+              background: rgba(0,0,0,0.5) !important;
+              color: #fff !important;
+              border-radius: 4px;
+              margin: 0 4px;
+              box-shadow: 0 2px 8px #000;
+              border: none;
+              padding: 8px 18px;
+              display: inline-block;
+              transition: background 0.2s;
+            }
+            .category li a.active, .category li.active a {
+              background: #A89158 !important;
+              color: #fff !important;
+              font-weight: bold;
+            }
+            .item-card {
+              background: rgba(0,0,0,0.45);
+              border-radius: 12px;
+              box-shadow: 0 2px 12px #0008;
+            }
+            .item-info p, .item-info .item-name, .item-info .item-price, .item-info .item-category {
+              color: #fff !important;
+              text-shadow: 0 2px 8px #000, 0 1px 0 #000;
+            }
+            .flipbook-cover-wrapper {
+              background: rgba(0,0,0,0.25);
+              border-radius: 12px;
+            }
+        /* Ensure nav and links are white and visible over video */
+        .header-transparent {
+          background-color: transparent !important;
+          border-bottom: none !important;
+        }
+        .header-transparent .main-nav a {
+          color: #fff !important;
+          text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .header-transparent .main-nav a.active {
+          background-color: #A89158;
+          color: #fff !important;
+        }
+        .header-transparent .main-nav a:hover {
+          background-color: rgba(255,255,255,0.2);
+        }
+        .header-transparent .site-title {
+          color: #fff;
+          text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+    .menu-bg-video-wrapper {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .menu-bg-video {
+      position: absolute;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.5s linear;
+      pointer-events: none;
+    }
+    .menu-bg-video.active {
+      opacity: 1;
+    }
+    body, html {
+      background: #000 !important;
+    }
+    main.content, .inner, .items-section, .category-section, .cart-bar, .footer, header.header {
+      position: relative;
+    }
+  </style>
+  <style>
     .flipbook-teaser-section {
       margin: 40px 0;
       text-align: center;
@@ -196,8 +287,13 @@
   </style>
 </head>
 <body>
+  <!-- Background Videos -->
+  <div class="menu-bg-video-wrapper">
+    <video id="menuBgVid1" class="menu-bg-video" src="assets/menu1vidz.mp4" type="video/mp4" playsinline muted loop autoplay></video>
+    <video id="menuBgVid2" class="menu-bg-video" src="assets/menuVidz2.mp4" type="video/mp4" playsinline muted loop autoplay></video>
+  </div>
   <!-- Header -->
-  <header class="header">
+  <header class="header header-transparent">
     <div class="header-content">
       <a href="index.html" class="brand">
         <img src="assets/logo.jpeg" alt="BOHO Logo" class="site-logo">
@@ -330,6 +426,42 @@
 
   <script src="app.js"></script>
   <script>
+    // Menu background video crossfade logic
+    const vid1 = document.getElementById('menuBgVid1');
+    const vid2 = document.getElementById('menuBgVid2');
+    let active = 1;
+    function crossfadeMenuBg() {
+      if (active === 1) {
+        vid1.classList.remove('active');
+        vid2.classList.add('active');
+        active = 2;
+      } else {
+        vid2.classList.remove('active');
+        vid1.classList.add('active');
+        active = 1;
+      }
+    }
+    // Start both videos, crossfade every 20s
+    window.addEventListener('DOMContentLoaded', () => {
+      vid1.currentTime = 0;
+      vid2.currentTime = 0;
+      // Try to play both videos, fallback if needed
+      const playPromise1 = vid1.play();
+      const playPromise2 = vid2.play();
+      if (playPromise1 !== undefined) playPromise1.catch(() => {});
+      if (playPromise2 !== undefined) playPromise2.catch(() => {});
+      vid1.classList.add('active');
+      setInterval(crossfadeMenuBg, 20000);
+      // In case browser blocks autoplay, play on first user interaction
+      const unlock = () => {
+        vid1.play();
+        vid2.play();
+        window.removeEventListener('click', unlock);
+        window.removeEventListener('keydown', unlock);
+      };
+      window.addEventListener('click', unlock);
+      window.addEventListener('keydown', unlock);
+    });
     // Flipbook modal handlers
     const flipbookCoverBtn = document.getElementById('flipbookCoverBtn');
     const flipbookModal = document.getElementById('flipbookModal');
