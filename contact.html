@@ -5,14 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact — BOHO Resturant</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .menu-bg-video-wrapper {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -2;
+    }
+    .menu-bg-video {
+      position: absolute;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.5s linear;
+      pointer-events: none;
+    }
+    .menu-bg-video.active {
+      opacity: 1;
+    }
+    body, html {
+      background: #000 !important;
+    }
+    main.content, .inner, .items-section, .category-section, .cart-bar, .footer, header.header {
+      position: relative;
+    }
+  </style>
 </head>
 <body class="contact-page">
   <!-- Full-Width Video Hero Section (Behind Everything) -->
   <section class="video-hero">
-    <video autoplay muted loop playsinline>
-      <source src="assets/contact-us-page.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
+    <div class="menu-bg-video-wrapper">
+      <video id="contactBgVid1" class="menu-bg-video" src="https://res.cloudinary.com/dhwftrt6y/video/upload/v1768562309/contact1vidz_yp24eo.mp4" type="video/mp4" playsinline muted loop autoplay></video>
+      <video id="contactBgVid2" class="menu-bg-video" src="https://res.cloudinary.com/dhwftrt6y/video/upload/v1768562412/contact2vidz_kwxm1t.mp4" type="video/mp4" playsinline muted loop autoplay></video>
+    </div>
     <div class="video-overlay"></div>
   </section>
 
@@ -74,5 +100,39 @@
   </footer>
 
   <script src="app.js"></script>
+  <script>
+    // Contact page background video crossfade logic
+    const vid1 = document.getElementById('contactBgVid1');
+    const vid2 = document.getElementById('contactBgVid2');
+    let active = 1;
+    function crossfadeContactBg() {
+      if (active === 1) {
+        vid1.classList.remove('active');
+        vid2.classList.add('active');
+        active = 2;
+      } else {
+        vid2.classList.remove('active');
+        vid1.classList.add('active');
+        active = 1;
+      }
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      vid1.currentTime = 0;
+      vid2.currentTime = 0;
+      vid1.play();
+      vid2.play();
+      vid1.classList.add('active');
+      setInterval(crossfadeContactBg, 20000);
+      // In case browser blocks autoplay, play on first user interaction
+      const unlock = () => {
+        vid1.play();
+        vid2.play();
+        window.removeEventListener('click', unlock);
+        window.removeEventListener('keydown', unlock);
+      };
+      window.addEventListener('click', unlock);
+      window.addEventListener('keydown', unlock);
+    });
+  </script>
 </body>
 </html>
