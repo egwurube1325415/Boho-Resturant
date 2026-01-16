@@ -91,5 +91,68 @@
   </footer>
 
   <script src="app.js"></script>
+  <script>
+    // Google Apps Script Web App URL
+    const REVIEWS_API_URL = "https://script.google.com/macros/s/AKfycbx5pJtHjMLPoFUeN6jtDkuQyxEfccwTQQ6_V2hh_v_QRLqOxKlON8-yLNMAGgeUXxVI/exec";
+
+    // Elements
+    const postsContainer = document.getElementById('postsContainer');
+    const postModal = document.getElementById('postModal');
+    const newPostBtn = document.getElementById('newPostBtn');
+    const closeModalBtn = postModal.querySelector('.close');
+    const postForm = document.getElementById('postForm');
+
+    // Show modal
+    newPostBtn.onclick = () => { postModal.style.display = 'block'; };
+    closeModalBtn.onclick = () => { postModal.style.display = 'none'; };
+    window.onclick = (e) => { if (e.target === postModal) postModal.style.display = 'none'; };
+
+    // Fetch and display reviews
+    async function loadReviews() {
+      postsContainer.innerHTML = '<p>Loading...</p>';
+      try {
+        const res = await fetch(REVIEWS_API_URL);
+        const reviews = await res.json();
+        if (!reviews.length) {
+          postsContainer.innerHTML = '<p>No posts yet. Be the first to write one!</p>';
+          return;
+        }
+        postsContainer.innerHTML = reviews.reverse().map(r => `
+          <div class="post-card">
+            <div class="post-header">
+              <span class="post-author">${r.name ? r.name : 'Anonymous'}</span>
+              <span class="post-date">${r.date || ''}</span>
+            </div>
+            <div class="post-body">${r.review}</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        postsContainer.innerHTML = '<p>Could not load posts. Please try again later.</p>';
+      }
+    }
+    loadReviews();
+
+    // Handle new post
+    postForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const name = postForm.postName.value.trim() || 'Anonymous';
+      const review = postForm.postBody.value.trim();
+      if (!review) return alert('Please enter a message.');
+      const date = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+      const payload = { name, review, date };
+      try {
+        await fetch(REVIEWS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        postModal.style.display = 'none';
+        postForm.reset();
+        loadReviews();
+      } catch (e) {
+        alert('Could not post. Please try again later.');
+      }
+    };
+  </script>
 </body>
 </html>

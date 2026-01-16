@@ -101,28 +101,37 @@
 
   <script src="app.js"></script>
   <script>
-    // Contact page background video crossfade logic
+    // Contact page background video seamless transition logic
     const vid1 = document.getElementById('contactBgVid1');
     const vid2 = document.getElementById('contactBgVid2');
     let active = 1;
-    function crossfadeContactBg() {
+    function playNextVideo() {
       if (active === 1) {
         vid1.classList.remove('active');
         vid2.classList.add('active');
+        vid2.currentTime = 0;
+        vid2.play();
         active = 2;
       } else {
         vid2.classList.remove('active');
         vid1.classList.add('active');
+        vid1.currentTime = 0;
+        vid1.play();
         active = 1;
       }
     }
     window.addEventListener('DOMContentLoaded', () => {
       vid1.currentTime = 0;
       vid2.currentTime = 0;
-      vid1.play();
-      vid2.play();
       vid1.classList.add('active');
-      setInterval(crossfadeContactBg, 20000);
+      vid1.play();
+      // When the active video ends, crossfade to the other
+      vid1.onended = () => {
+        playNextVideo();
+      };
+      vid2.onended = () => {
+        playNextVideo();
+      };
       // In case browser blocks autoplay, play on first user interaction
       const unlock = () => {
         vid1.play();
