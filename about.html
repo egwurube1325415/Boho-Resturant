@@ -47,38 +47,22 @@
 
       <!-- Posts Section -->
       <section class="posts-section">
-        <h3>Posts</h3>
-        <button class="btn-primary" id="newPostBtn">Write a Post</button>
+        <h3>What Our Guests Say</h3>
         <div class="posts-list" id="postsContainer">
-          <!-- Posts will be loaded here -->
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.23496429581!2d107.0756959!3d10.3306298!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175650053e5ff69%3A0x963ec05ced05b444!2sBOHO%20Restaurant!5e0!3m2!1svi!2s!4v1705500000!5m2!1svi!2s"
+            width="100%"
+            height="350"
+            style="border:0; border-radius: 8px; box-shadow: 0 2px 12px #0002;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
         </div>
       </section>
 
     </div>
   </main>
-
-  <!-- Post Form Modal -->
-  <div id="postModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h3>Write a Post</h3>
-      <form id="postForm">
-        <div class="form-group">
-          <label for="postName">Name:</label>
-          <input type="text" id="postName" name="postName" placeholder="Your name (optional)" maxlength="14">
-        </div>
-        <div class="form-group">
-          <label for="postBody">Message:</label>
-          <textarea id="postBody" name="postBody" placeholder="Share your thoughts..." maxlength="140" rows="4"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="postImage">Image URL (optional):</label>
-          <input type="url" id="postImage" name="postImage" placeholder="https://example.com/image.jpg">
-        </div>
-        <button type="submit" class="btn-primary">Post</button>
-      </form>
-    </div>
-  </div>
 
   <footer class="footer">
     <p>&copy; 2025 BOHO Resturant. All rights reserved.
@@ -92,66 +76,63 @@
 
   <script src="app.js"></script>
   <script>
-    // Google Apps Script Web App URL
-    const REVIEWS_API_URL = "https://script.google.com/macros/s/AKfycbx4dNkViVFjW2em78vajLGF2Y5zUMHK-2JZBZGaXSWCnWfLOuaUVCfZnvRVhuSRaBp89Q/exec"
-    // Elements
-    const postsContainer = document.getElementById('postsContainer');
-    const postModal = document.getElementById('postModal');
-    const newPostBtn = document.getElementById('newPostBtn');
-    const closeModalBtn = postModal.querySelector('.close');
-    const postForm = document.getElementById('postForm');
+const PLACE_ID = "ChIJgbTj62BldTERAd7Gk3D6NBE";
 
-    // Show modal
-    newPostBtn.onclick = () => { postModal.style.display = 'block'; };
-    closeModalBtn.onclick = () => { postModal.style.display = 'none'; };
-    window.onclick = (e) => { if (e.target === postModal) postModal.style.display = 'none'; };
+function initGoogleReviews() {
+  const map = new google.maps.Map(document.getElementById("gmaps-hidden"), { zoom: 15 });
+  const service = new google.maps.places.PlacesService(map);
 
-    // Fetch and display reviews
-    async function loadReviews() {
-      postsContainer.innerHTML = '<p>Loading...</p>';
-      try {
-        const res = await fetch(REVIEWS_API_URL);
-        const reviews = await res.json();
-        if (!reviews.length) {
-          postsContainer.innerHTML = '<p>No posts yet. Be the first to write one!</p>';
-          return;
-        }
-        postsContainer.innerHTML = reviews.reverse().map(r => `
-          <div class="post-card">
-            <div class="post-header">
-              <span class="post-author">${r.name ? r.name : 'Anonymous'}</span>
-              <span class="post-date">${r.date || ''}</span>
-            </div>
-            <div class="post-body">${r.review}</div>
+  service.getDetails(
+    {
+      placeId: PLACE_ID,
+      fields: ["name", "rating", "user_ratings_total", "reviews", "url"]
+    },
+    (place, status) => {
+      const container = document.getElementById("reviews-list");
+
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !place) {
+        container.innerHTML = "<p>Reviews are currently unavailable.</p>";
+        return;
+      }
+
+      const reviews = (place.reviews || [])
+        .sort((a, b) => b.time - a.time)
+        .slice(0, 5);
+
+      const header = `
+        <div class="review-card">
+          <strong>${place.name}</strong><br>
+          ⭐ ${place.rating} (${place.user_ratings_total} reviews)<br>
+          <a href="${place.url}" target="_blank">View on Google</a>
+        </div>
+      `;
+
+      const cards = reviews.map(r => `
+        <div class="review-card">
+          <div class="review-header">
+            <span>${escapeHTML(r.author_name)}</span>
+            <span>⭐ ${r.rating}</span>
           </div>
-        `).join('');
-      } catch (e) {
-        postsContainer.innerHTML = '<p>Could not load posts. Please try again later.</p>';
-      }
-    }
-    loadReviews();
+          <div class="review-text">${escapeHTML(r.text)}</div>
+          <div class="review-meta">${r.relative_time_description}</div>
+        </div>
+      `).join("");
 
-    // Handle new post
-    postForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const name = postForm.postName.value.trim() || 'Anonymous';
-      const review = postForm.postBody.value.trim();
-      if (!review) return alert('Please enter a message.');
-      const date = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
-      const payload = { name, review, date };
-      try {
-        await fetch(REVIEWS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        postModal.style.display = 'none';
-        postForm.reset();
-        loadReviews();
-      } catch (e) {
-        alert('Could not post. Please try again later.');
-      }
-    };
-  </script>
+      container.innerHTML = header + cards;
+    }
+  );
+}
+
+function escapeHTML(str) {
+  return String(str).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  })[m]);
+}
+</script>
+
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-RxBMjGYyIc-uxsX8wu14ms0E4jqDGYk&libraries=places&callback=initGoogleReviews">
+</script>
+
 </body>
 </html>

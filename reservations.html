@@ -81,11 +81,29 @@
   </footer>
 
   <script>
-+document.getElementById('reservationForm')?.addEventListener('submit', (e) => {
-+  e.preventDefault();
-+  alert('Reservation request submitted. We will contact you to confirm.');
-+  document.getElementById('reservationForm').reset();
-+});
+document.getElementById('reservationForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData();
+  formData.append('action', 'reservationRequest');
+  formData.append('name', form.resName.value);
+  formData.append('phone', form.resPhone.value);
+  formData.append('date', form.resDate.value);
+  formData.append('time', form.resTime.value);
+  formData.append('party', form.resParty.value);
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      body: formData
+    });
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Unknown error');
+    alert('Reservation request submitted. We will contact you to confirm.');
+    form.reset();
+  } catch (err) {
+    alert('There was an error submitting your reservation. Please try again later.');
+  }
+});
   </script>
   <script src="app.js"></script>
 </body>

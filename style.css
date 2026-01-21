@@ -1058,3 +1058,39 @@ ul.category li.active a:visited {
     font-size: 15px;
   }
 }
+#google-reviews {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+#reviews-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.review-card {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.review-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.review-meta {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.7;
+}

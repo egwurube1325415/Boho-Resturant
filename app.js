@@ -2,9 +2,9 @@
 // Configuration
 // ==========================================
 // IMPORTANT: Update this URL with your Google Apps Script deployment URL
-// It MUST end with /usercallable (NOT /exec)
+// It MUST end with /exec
 // Get it from: Google Apps Script > Deploy > Web app > Copy URL
-const API_URL = 'https://script.google.com/macros/s/AKfycbzjR2N6HnLgEQoJ9SzAQRllMz2mTwdqjwBldpKpAsJAgck7HVL7ZsNxEFVlkNLxXQ2vkQ/exec/usercallable';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxJsLhxwSXJxlUaOiIgxiTr5qhgsWiR7XEgIySg9wiL7yP2lVefuyom51nB4-gC4qE3/exec';
 
 // ==========================================
 // Dummy Data (for frontend testing without backend)
