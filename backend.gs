@@ -19,7 +19,7 @@ function getSheet(sheetName) {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     let sheet = ss.getSheetByName(sheetName);
 
-    // Auto-create Reservations sheet on first use
+    // Auto-create Reservations and Contacts sheets on first use
     if (!sheet && sheetName === 'Reservations') {
       sheet = ss.insertSheet(sheetName);
       sheet.appendRow([
@@ -30,6 +30,9 @@ function getSheet(sheetName) {
         'Time',
         'Party Size',
       ]);
+    } else if (!sheet && sheetName === 'Contacts') {
+      sheet = ss.insertSheet(sheetName);
+      sheet.appendRow(['Timestamp', 'Name', 'Email', 'Message']);
     }
 
     if (!sheet) {
@@ -137,6 +140,11 @@ function doPost(e) {
       case 'reservationRequest':
         response = handleReservationRequest(payload);
         break;
+
+      // Contact endpoint
+      case 'contactRequest':
+        response = handleContactRequest(payload);
+        break;
       default:
         response = formatResponse(false, null, 'Unknown action: ' + action);
     }
@@ -240,6 +248,81 @@ function handleReservationRequest(reservation) {
       false,
       null,
       'Failed to send reservation email: ' + error.message,
+    );
+  }
+}
+
+// ==========================================
+// Contact Email Handler
+// ==========================================
+function handleContactRequest(contact) {
+  try {
+    var email = 'marketing.bohorestaurant@gmail.com'; // Receiving email
+    var subject = 'New Contact Message – ' + (contact.name || 'Guest');
+
+    var textBody =
+      'New contact message received:\n' +
+      'Name: ' +
+      (contact.name || '') +
+      '\n' +
+      'Email: ' +
+      (contact.email || '') +
+      '\n' +
+      'Message:\n' +
+      (contact.message || '') +
+      '\n' +
+      '\nSent from BOHO Restaurant website.';
+
+    var htmlBody =
+      '<div style="font-family:Arial,Helvetica,sans-serif; padding:16px; background:#f6f6f6;">' +
+      '  <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);overflow:hidden;">' +
+      '    <div style="background:#b48a4a;color:#ffffff;padding:16px 20px;font-size:18px;font-weight:bold;">' +
+      '      BOHO Restaurant – New Contact Message' +
+      '    </div>' +
+      '    <div style="padding:20px;font-size:14px;color:#333333;">' +
+      '      <p style="margin:0 0 12px;">You have received a new message from your website contact form:</p>' +
+      '      <table style="width:100%;border-collapse:collapse;font-size:14px;">' +
+      '        <tr><td style="padding:6px 0;font-weight:bold;width:120px;">Name</td><td style="padding:6px 0;">' +
+      (contact.name || '') +
+      '</td></tr>' +
+      '        <tr><td style="padding:6px 0;font-weight:bold;">Email</td><td style="padding:6px 0;">' +
+      (contact.email || '') +
+      '</td></tr>' +
+      '      </table>' +
+      '      <p style="margin:16px 0 4px;font-weight:bold;">Message</p>' +
+      '      <p style="margin:0;white-space:pre-line;">' +
+      (contact.message || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') +
+      '</p>' +
+      '      <p style="margin:16px 0 0;font-size:12px;color:#777777;">Sent from BOHO Restaurant website.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>';
+
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      htmlBody: htmlBody,
+      body: textBody,
+      name: 'BOHO Restaurant Contact',
+    });
+
+    // Append to Contacts sheet
+    var sheet = getSheet('Contacts');
+    var newRow = [
+      new Date(),
+      contact.name || '',
+      contact.email || '',
+      contact.message || '',
+    ];
+    sheet.appendRow(newRow);
+
+    return formatResponse(true, {}, 'Contact message sent and recorded');
+  } catch (error) {
+    Logger.log('Contact email error: ' + error.message);
+    return formatResponse(
+      false,
+      null,
+      'Failed to send contact email: ' + error.message,
     );
   }
 }

@@ -4,7 +4,7 @@
 // IMPORTANT: Update this URL with your Google Apps Script deployment URL
 // It MUST end with /exec
 // Get it from: Google Apps Script > Deploy > Web app > Copy URL
-const API_URL = 'https://script.google.com/macros/s/AKfycbxJsLhxwSXJxlUaOiIgxiTr5qhgsWiR7XEgIySg9wiL7yP2lVefuyom51nB4-gC4qE3/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyDH87imvgfC5FhIraFsynJ9i45aU4K2gCRGfgI_QfxGSaAijl0iTynQszK-3a_eT8taA/exec';
 
 // ==========================================
 // Dummy Data (for frontend testing without backend)

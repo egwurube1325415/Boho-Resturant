@@ -70,7 +70,7 @@
       <p><strong>Email:</strong> <a href="mailto:bohobeergarden@gmail.com">bohobeergarden@gmail.com</a></p>
 
       <h3>Send us a message</h3>
-      <form action="#" method="post">
+      <form id="contactForm" action="#" method="post">
         <div class="form-group">
           <label for="name">Name</label>
           <input id="name" name="name" required>
@@ -141,6 +141,33 @@
       };
       window.addEventListener('click', unlock);
       window.addEventListener('keydown', unlock);
+
+      // Contact form submission handler
+      const contactForm = document.getElementById('contactForm');
+      if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const form = e.target;
+          const formData = new FormData();
+          formData.append('action', 'contactRequest');
+          formData.append('name', form.name.value);
+          formData.append('email', form.email.value);
+          formData.append('message', form.message.value);
+
+          try {
+            const response = await fetch(API_URL, {
+              method: 'POST',
+              body: formData,
+            });
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message || 'Unknown error');
+            alert('Thank you for contacting BOHO Restaurant! We will get back to you shortly.');
+            form.reset();
+          } catch (error) {
+            alert('There was an error sending your message. Please try again later.');
+          }
+        });
+      }
     });
   </script>
 </body>
