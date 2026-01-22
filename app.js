@@ -4,7 +4,7 @@
 // IMPORTANT: Update this URL with your Google Apps Script deployment URL
 // It MUST end with /exec
 // Get it from: Google Apps Script > Deploy > Web app > Copy URL
-const API_URL = 'https://script.google.com/macros/s/AKfycbyDH87imvgfC5FhIraFsynJ9i45aU4K2gCRGfgI_QfxGSaAijl0iTynQszK-3a_eT8taA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzqBzGEISlrgqUbmbgMM5b8PzYuRapJt2Bw1zQ60bkvz2T2JdV_7zMIIEKFkU7GPGe9/exec';
 
 // ==========================================
 // Dummy Data (for frontend testing without backend)
@@ -420,32 +420,62 @@ async function loadReviews(itemId) {
 
 function renderReviews() {
   const container = document.getElementById('reviewsContainer');
-  
+  // Always clear the container before rendering
+  container.innerHTML = '';
+
   if (state.reviews.length === 0) {
     container.innerHTML = '<div class="empty-state"><p>No reviews yet. Be the first to review!</p></div>';
     return;
   }
 
+  // Remove duplicates by unique key (name+body+date)
+  const seen = new Set();
   let html = '';
+  // Helper to clean up review text
+  function cleanReviewText(text) {
+    if (!text) return '';
+    // Remove URLs
+    text = text.replace(/https?:\/\/[^\s]+/g, '');
+    // Remove system phrases (add more as needed)
+    const systemPhrases = [
+      'Đọc bài đánh giá',
+      'Trả lời bài đánh giá',
+      'Người dùng này chỉ để lại điểm xếp hạng',
+      'Bạn đã nhận được 1 bài đánh giá 5 sao mới',
+      'Thật tuyệt vời!',
+      'View and reply',
+      'See your reviews',
+      'Manage your reviews'
+    ];
+    systemPhrases.forEach(phrase => {
+      text = text.replace(new RegExp(phrase, 'gi'), '');
+    });
+    // Remove extra whitespace
+    text = text.replace(/\s+/g, ' ').trim();
+    return text;
+  }
+
   state.reviews.forEach(review => {
+    const key = `${review.name}|${review.body}|${review.created_at}`;
+    if (seen.has(key)) return;
+    seen.add(key);
     const date = new Date(review.created_at).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
-
+    const cleanedBody = cleanReviewText(review.body);
     html += `
       <div class="review-card">
         <div class="review-header">
           <span class="review-author">${escapeHtml(review.name)}</span>
           <span class="review-date">${date}</span>
         </div>
-        <p class="review-body">${escapeHtml(review.body)}</p>
+        <p class="review-body">${escapeHtml(cleanedBody)}</p>
         <div class="review-likes">👍 ${review.like_count || 0} likes</div>
       </div>
     `;
   });
-
   container.innerHTML = html;
 }
 

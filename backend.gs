@@ -19,7 +19,7 @@ function getSheet(sheetName) {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     let sheet = ss.getSheetByName(sheetName);
 
-    // Auto-create Reservations and Contacts sheets on first use
+    // Auto-create Reservations, Contacts, and GoogleReviews sheets on first use
     if (!sheet && sheetName === 'Reservations') {
       sheet = ss.insertSheet(sheetName);
       sheet.appendRow([
@@ -33,11 +33,23 @@ function getSheet(sheetName) {
     } else if (!sheet && sheetName === 'Contacts') {
       sheet = ss.insertSheet(sheetName);
       sheet.appendRow(['Timestamp', 'Name', 'Email', 'Message']);
+    } else if (!sheet && sheetName === 'GoogleReviews') {
+      sheet = ss.insertSheet(sheetName);
+      sheet.appendRow(['Name', 'Review', 'Date', 'Rating']);
+    } else if (sheet && sheetName === 'GoogleReviews') {
+      // Ensure the sheet has the Rating column
+      const headers = sheet
+        .getRange(1, 1, 1, sheet.getLastColumn())
+        .getValues()[0];
+      if (headers.length < 4 || headers[3] !== 'Rating') {
+        sheet.insertColumnAfter(3);
+        sheet.getRange(1, 4).setValue('Rating');
+      }
     }
 
     if (!sheet) {
       throw new Error(
-        `Sheet "${sheetName}" not found. Make sure you have sheets named: Items, Posts, Reviews, Reservations`,
+        `Sheet "${sheetName}" not found. Make sure you have sheets named: Items, Posts, Reviews, Reservations, Contacts, GoogleReviews`,
       );
     }
     return sheet;
@@ -567,6 +579,9 @@ function doGet(e) {
         // expect itemId param
         response = getReviews({ itemId: params.itemId });
         break;
+      case 'getGoogleReviews':
+        response = getGoogleReviews();
+        break;
       default:
         response = formatResponse(false, null, 'Unknown action: ' + action);
     }
@@ -581,4 +596,334 @@ function doGet(e) {
       JSON.stringify(response),
     ).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// ==========================================
+// Google Reviews (Sheet-backed)
+// ==========================================
+function getGoogleReviews() {
+  // Try to sync latest reviews from Gmail before reading the sheet.
+  try {
+    syncGoogleReviewsFromEmail();
+  } catch (syncError) {
+    Logger.log('syncGoogleReviewsFromEmail error: ' + syncError.message);
+  }
+
+  const sheet = getSheet('GoogleReviews');
+  const data = sheet.getDataRange().getValues();
+
+  if (data.length <= 1) {
+    return formatResponse(true, []);
+  }
+
+  const reviews = [];
+  for (let i = 1; i < data.length; i++) {
+    if (!data[i][0]) continue; // skip empty rows
+    reviews.push({
+      name: data[i][0],
+      review: data[i][1],
+      date: data[i][2],
+      rating: data[i][3] || '',
+    });
+  }
+
+  return formatResponse(true, reviews);
+}
+
+// ==========================================
+// Sync Google review notification emails -> GoogleReviews sheet
+// ==========================================
+function syncGoogleReviewsFromEmail() {
+  // Adjusted query: match all review notification emails from Google Business Profile in the last 365 days.
+  const query = 'from:businessprofile-noreply@google.com newer_than:365d';
+
+  const threads = GmailApp.search(query, 0, 50); // Limit to latest 50 threads for safety
+  Logger.log('syncGoogleReviewsFromEmail search query: ' + query);
+  Logger.log(
+    'syncGoogleReviewsFromEmail found threads: ' +
+      (threads ? threads.length : 0),
+  );
+  if (!threads || threads.length === 0) return 0;
+
+  const sheet = getSheet('GoogleReviews');
+  const data = sheet.getDataRange().getValues();
+  // Stronger normalization: remove accents, lowercase, trim, collapse whitespace
+  function normalize(val) {
+    if (!val) return '';
+    return val
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // remove diacritics
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ' ');
+  }
+  // Normalize any date string to ISO yyyy-mm-dd
+  function normalizeDateToISO(val) {
+    if (!val) return '';
+    if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val.trim())) {
+      return val.trim();
+    }
+    // Try to parse as Date
+    let d = new Date(val);
+    if (!isNaN(d.getTime())) {
+      return d.toISOString().slice(0, 10);
+    }
+    return normalize(val); // fallback
+  }
+  const existingKeys = new Set();
+  for (let i = 1; i < data.length; i++) {
+    const normName = normalize(data[i][0]);
+    const normReview = normalize(data[i][1]);
+    const normDate = normalizeDateToISO(data[i][2]);
+    const key = [normName, normReview, normDate].join('||');
+    existingKeys.add(key);
+  }
+
+  let added = 0;
+
+  threads.forEach((thread) => {
+    const messages = thread.getMessages();
+    if (!messages || messages.length === 0) return;
+
+    const msg = messages[messages.length - 1]; // latest message in the thread
+    const subject = msg.getSubject() || '';
+    const body = msg.getPlainBody() || '';
+    const date = msg.getDate();
+
+    Logger.log('Processing review email with subject: ' + subject);
+
+    // Extract reviewer name from subject: only allow simple person names
+    let name = '';
+    let reviewSubjectPatterns = [
+      ' wrote a review for',
+      ' wrote a review of',
+      ' wrote a review',
+      ' đã viết bài đánh giá về', // Vietnamese pattern
+    ];
+    for (let i = 0; i < reviewSubjectPatterns.length; i++) {
+      const marker = reviewSubjectPatterns[i];
+      const idx = subject.indexOf(marker);
+      if (idx > 0) {
+        name = subject.substring(0, idx).trim();
+        break;
+      }
+    }
+    // If not matched, fallback to empty (not a person)
+    if (!name) {
+      name = '';
+    }
+
+    // Filter out system notifications and photo updates
+    // Exclude if subject starts with "BOHO Restaurant" or "Những ảnh mới" or "Bạn hiện là người quản lý" or "Kathy Nguyen đã mời bạn quản lý"
+    const systemPatterns = [
+      /^BOHO Restaurant/i,
+      /^Những ảnh mới/i,
+      /^Bạn hiện là người quản lý/i,
+      /^Kathy Nguyen đã mời bạn quản lý/i,
+    ];
+    let isSystem = systemPatterns.some((pat) => pat.test(subject));
+    if (isSystem || !name) {
+      Logger.log('Skipping non-person review: ' + subject);
+      return;
+    }
+
+    let reviewText = extractReviewTextFromBody(body);
+    // Clean review text: remove URLs and system phrases
+    function cleanReviewText(text) {
+      if (!text) return '';
+      // Remove URLs
+      text = text.replace(/https?:\/\/[^\s]+/g, '');
+      // Remove system phrases
+      const systemPhrases = [
+        'Đọc bài đánh giá',
+        'Trả lời bài đánh giá',
+        'Người dùng này chỉ để lại điểm xếp hạng',
+        'Bạn đã nhận được 1 bài đánh giá 5 sao mới',
+        'Thật tuyệt vời!',
+        'View and reply',
+        'See your reviews',
+        'Manage your reviews',
+      ];
+      systemPhrases.forEach(function (phrase) {
+        text = text.replace(new RegExp(phrase, 'gi'), '');
+      });
+      // Remove extra whitespace
+      text = text.replace(/\s+/g, ' ').trim();
+      return text;
+    }
+    reviewText = cleanReviewText(reviewText);
+    const isoDate = date ? date.toISOString().slice(0, 10) : '';
+    // Extract star rating
+    const rating = extractStarRatingFromBody(body);
+    // If review text is missing or too short, generate a friendly summary
+    if (!reviewText || reviewText.length < 8) {
+      if (name && rating) {
+        reviewText = `${name} loves Boho and gives it a ${rating} star${rating === '1' ? '' : 's'}`;
+      } else if (name) {
+        reviewText = `${name} left a rating for Boho.`;
+      } else {
+        reviewText = `A guest left a rating for Boho.`;
+      }
+    }
+
+    // Stronger normalization: remove accents, lowercase, trim, collapse whitespace
+    function normalize(val) {
+      if (!val) return '';
+      return val
+        .toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // remove diacritics
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, ' ');
+    }
+    const normName = normalize(name);
+    const normReviewText = normalize(reviewText);
+    const normIsoDate = normalizeDateToISO(isoDate);
+    const key = [normName, normReviewText, normIsoDate].join('||');
+    Logger.log('Checking for duplicate: ' + key);
+    Logger.log('Existing keys: ' + JSON.stringify(Array.from(existingKeys)));
+    if (existingKeys.has(key)) {
+      Logger.log('Skipping duplicate review: ' + key);
+      return; // skip duplicates
+    }
+
+    // Double-check for duplicates in the sheet (in case of race conditions or manual edits)
+    const allRows = sheet.getDataRange().getValues();
+    let isDuplicate = false;
+    for (let i = 1; i < allRows.length; i++) {
+      const rowName = normalize(allRows[i][0]);
+      const rowReview = normalize(allRows[i][1]);
+      const rowDate = normalizeDateToISO(allRows[i][2]);
+      const rowKey = [rowName, rowReview, rowDate].join('||');
+      Logger.log('Comparing to rowKey: ' + rowKey);
+      if (
+        rowName === normName &&
+        rowReview === normReviewText &&
+        rowDate === normIsoDate
+      ) {
+        isDuplicate = true;
+        break;
+      }
+    }
+    if (isDuplicate) {
+      Logger.log('Sheet already contains duplicate review: ' + key);
+      existingKeys.add(key);
+      return;
+    }
+
+    sheet.appendRow([
+      name,
+      reviewText,
+      isoDate,
+      rating !== undefined && rating !== null ? String(rating) : '',
+    ]);
+    existingKeys.add(key);
+    added++;
+  });
+
+  // Helper: extract star rating from the email body
+  function extractStarRatingFromBody(body) {
+    if (!body) return '';
+    // English patterns
+    var match = body.match(/(\d)[-–]star rating/);
+    if (match && match[1]) {
+      return match[1];
+    }
+    var match2 = body.match(/(\d) stars/);
+    if (match2 && match2[1]) {
+      return match2[1];
+    }
+    // Vietnamese patterns
+    var match3 = body.match(/(\d) sao/); // e.g., "5 sao"
+    if (match3 && match3[1]) {
+      return match3[1];
+    }
+    var match4 = body.match(/đánh giá (\d) sao/); // e.g., "đánh giá 5 sao"
+    if (match4 && match4[1]) {
+      return match4[1];
+    }
+    // Fallback: look for unicode stars (★)
+    var starLine = body.split('\n').find(function (line) {
+      return /★/.test(line);
+    });
+    if (starLine) {
+      var count = (starLine.match(/★/g) || []).length;
+      if (count > 0) return String(count);
+    }
+    return '';
+  }
+
+  Logger.log('syncGoogleReviewsFromEmail added ' + added + ' new reviews');
+  return added;
+}
+
+// Helper: extract a readable review snippet from the email body
+function extractReviewTextFromBody(body) {
+  if (!body) return '';
+
+  // 1) Vietnamese/translated emails: look for "(Translated by Google)" and take text after.
+  var translatedMarker = '(Translated by Google)';
+  var tIdx = body.indexOf(translatedMarker);
+  if (tIdx !== -1) {
+    var tSnippet = body.substring(tIdx + translatedMarker.length).trim();
+
+    var tEndMarkers = [
+      'Trả lời bài đánh giá',
+      'Xem tất cả các bài đánh giá',
+      'View and reply',
+      'See your reviews',
+      'Manage your reviews',
+    ];
+    var tEnd = tSnippet.length;
+    tEndMarkers.forEach(function (m) {
+      var p = tSnippet.indexOf(m);
+      if (p !== -1 && p < tEnd) tEnd = p;
+    });
+
+    tSnippet = tSnippet.substring(0, tEnd).trim();
+    if (tSnippet.length > 800) tSnippet = tSnippet.substring(0, 800) + '…';
+    if (tSnippet) return tSnippet;
+  }
+
+  // Try to extract after a common phrase in Google review emails.
+  var marker = "Here's what they wrote:";
+  var idx = body.indexOf(marker);
+  if (idx !== -1) {
+    var snippet = body.substring(idx + marker.length).trim();
+
+    // Stop at common footer phrases if present.
+    var endMarkers = [
+      'View and reply',
+      'See your reviews',
+      'Manage your reviews',
+    ];
+    var end = snippet.length;
+    endMarkers.forEach(function (m) {
+      var p = snippet.indexOf(m);
+      if (p !== -1 && p < end) end = p;
+    });
+
+    snippet = snippet.substring(0, end).trim();
+    // Limit length to keep it tidy.
+    if (snippet.length > 800) {
+      snippet = snippet.substring(0, 800) + '…';
+    }
+    return snippet;
+  }
+
+  // Fallback: use the first few non-empty lines.
+  var lines = body
+    .split('\n')
+    .map(function (l) {
+      return l.trim();
+    })
+    .filter(function (l) {
+      return l;
+    });
+  if (lines.length === 0) return '';
+  var fallback = lines.slice(0, 8).join(' ');
+  if (fallback.length > 800) fallback = fallback.substring(0, 800) + '…';
+  return fallback;
 }

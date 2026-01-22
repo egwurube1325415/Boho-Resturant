@@ -61,6 +61,14 @@
         </div>
       </section>
 
+      <!-- Google Reviews Section -->
+      <section id="google-reviews" class="reviews-section">
+        <h3>Google Reviews</h3>
+        <div id="reviews-list"></div>
+        <!-- Hidden map container required by PlacesService -->
+        <div id="gmaps-hidden" style="height:0;width:0;overflow:hidden;"></div>
+      </section>
+
     </div>
   </main>
 
@@ -76,63 +84,46 @@
 
   <script src="app.js"></script>
   <script>
-const PLACE_ID = "ChIJgbTj62BldTERAd7Gk3D6NBE";
+  document.addEventListener('DOMContentLoaded', async () => {
+    const container = document.getElementById('reviews-list');
+    if (!container) return;
 
-function initGoogleReviews() {
-  const map = new google.maps.Map(document.getElementById("gmaps-hidden"), { zoom: 15 });
-  const service = new google.maps.places.PlacesService(map);
-
-  service.getDetails(
-    {
-      placeId: PLACE_ID,
-      fields: ["name", "rating", "user_ratings_total", "reviews", "url"]
-    },
-    (place, status) => {
-      const container = document.getElementById("reviews-list");
-
-      if (status !== google.maps.places.PlacesServiceStatus.OK || !place) {
-        container.innerHTML = "<p>Reviews are currently unavailable.</p>";
+    try {
+      const reviews = await apiGet('getGoogleReviews');
+      if (!reviews || reviews.length === 0) {
+        container.innerHTML = '<p>Reviews are currently unavailable.</p>';
         return;
       }
 
-      const reviews = (place.reviews || [])
-        .sort((a, b) => b.time - a.time)
-        .slice(0, 5);
-
-      const header = `
-        <div class="review-card">
-          <strong>${place.name}</strong><br>
-          ⭐ ${place.rating} (${place.user_ratings_total} reviews)<br>
-          <a href="${place.url}" target="_blank">View on Google</a>
-        </div>
-      `;
-
-      const cards = reviews.map(r => `
-        <div class="review-card">
-          <div class="review-header">
-            <span>${escapeHTML(r.author_name)}</span>
-            <span>⭐ ${r.rating}</span>
+      function renderStars(rating) {
+        const n = parseInt(rating, 10);
+        if (!n || n < 1) return '';
+        return `<span class="review-stars" title="${n} star${n === 1 ? '' : 's'}">${'★'.repeat(n)}${'☆'.repeat(5-n)}</span>`;
+      }
+      const cards = reviews.map(r => {
+        const dateStr = r.date
+          ? new Date(r.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+          : '';
+        const stars = renderStars(r.rating);
+        return `
+          <div class="review-card">
+            <div class="review-header">
+              <span>${escapeHtml(r.name || '')}</span>
+              <span class="review-date">${dateStr}</span>
+              ${stars ? `<span class="review-rating">${stars}</span>` : ''}
+            </div>
+            <div class="review-text">${escapeHtml(r.review || '')}</div>
           </div>
-          <div class="review-text">${escapeHTML(r.text)}</div>
-          <div class="review-meta">${r.relative_time_description}</div>
-        </div>
-      `).join("");
+        `;
+      }).join('');
 
-      container.innerHTML = header + cards;
+      container.innerHTML = cards;
+    } catch (error) {
+      console.error('Failed to load GoogleReviews sheet data', error);
+      container.innerHTML = '<p>Reviews are currently unavailable.</p>';
     }
-  );
-}
-
-function escapeHTML(str) {
-  return String(str).replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-  })[m]);
-}
-</script>
-
-<script async
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-RxBMjGYyIc-uxsX8wu14ms0E4jqDGYk&libraries=places&callback=initGoogleReviews">
-</script>
+  });
+  </script>
 
 </body>
 </html>
