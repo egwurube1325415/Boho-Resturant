@@ -8,9 +8,9 @@
   <style>
         @media (max-width: 600px) {
           .flipbook-viewer {
-            height: 120vw;
-            min-height: 70vw;
-            max-height: 140vw;
+                height: 120vw;
+                min-height: 70vw;
+                max-height: 140vw;
           }
           .flipbook-spread {
             flex-direction: column;
@@ -64,22 +64,28 @@
           }
           .flipbook-btn span { display: none; }
         }
+    html, body { height: 100%; margin: 0; padding: 0; }
+
     .flipbook-container {
-      max-width: 1000px;
-      margin: 40px auto;
+      max-width: 1200px;
+      width: 100%;
+      margin: 6px auto; /* centered in modal */
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 8px;
+      padding-bottom: 14px; /* add bottom space so modal appears fuller */
     }
 
     .flipbook-viewer {
       background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-      border-radius: 12px;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.3);
+      border-radius: 8px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.20), inset 0 0 12px rgba(255,255,255,0.25);
       overflow: hidden;
       position: relative;
       width: 100%;
-      height: 550px;
+      height: calc(100vh - 80px); /* give more vertical room to the viewer */
+      max-height: 1100px;
+      padding: 0; /* remove inner padding so image can fill */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -152,12 +158,12 @@
 
     .flipbook-page-container {
       flex: 1;
-      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
       overflow: hidden;
+      padding: 0; /* allow image to reach edges */
     }
 
     .flipbook-page-container.left {
@@ -171,9 +177,13 @@
 
     .flipbook-page {
       width: 100%;
-      height: 100%;
+      height: auto;
+      max-width: 100%;
+      max-height: 88vh; /* allow image to occupy most of the viewport height */
       object-fit: contain;
       object-position: center;
+      display: block;
+      margin: 0 auto;
     }
 
     .flipbook-controls {
@@ -182,6 +192,8 @@
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
+      margin-top: 12px;
+      margin-bottom: 22px; /* extra bottom room to push modal fuller */
     }
 
     .flipbook-btn {
@@ -296,28 +308,45 @@
   </footer>
 
   <script>
-    // Flipbook configuration
+    // Flipbook configuration — use the numbered images in assets/Menu pages/
     const menuPages = [
-      'assets/Menu Pages/cover page.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.30.21 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.30.51 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.31.12 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.31.37 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.33.07 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.33.30 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.33.53 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.34.17 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.34.37 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.35.22 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.35.44 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.36.03 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.36.24 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.36.42 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.37.02 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.37.21 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.37.39 AM.png',
-      'assets/Menu Pages/Screen Shot 2025-12-24 at 9.37.58 AM.png',
-      'assets/Menu Pages/Ending Page.png'
+      'assets/Menu pages/1.png',
+      'assets/Menu pages/2.png',
+      'assets/Menu pages/3.png',
+      'assets/Menu pages/4.png',
+      'assets/Menu pages/5.png',
+      'assets/Menu pages/6.png',
+      'assets/Menu pages/7.png',
+      'assets/Menu pages/8.png',
+      'assets/Menu pages/9.png',
+      'assets/Menu pages/10.png',
+      'assets/Menu pages/11.png',
+      'assets/Menu pages/12.png',
+      'assets/Menu pages/13.png',
+      'assets/Menu pages/14.png',
+      'assets/Menu pages/15.png',
+      'assets/Menu pages/16.png',
+      'assets/Menu pages/17.png',
+      'assets/Menu pages/18.png',
+      'assets/Menu pages/19.png',
+      'assets/Menu pages/20.png',
+      'assets/Menu pages/21.png',
+      'assets/Menu pages/22.png',
+      'assets/Menu pages/23.png',
+      'assets/Menu pages/24.png',
+      'assets/Menu pages/25.png',
+      'assets/Menu pages/26.png',
+      'assets/Menu pages/27.png',
+      'assets/Menu pages/28.png',
+      'assets/Menu pages/29.png',
+      'assets/Menu pages/30.png',
+      'assets/Menu pages/31.png',
+      'assets/Menu pages/32.png',
+      'assets/Menu pages/33.png',
+      'assets/Menu pages/34.png',
+      'assets/Menu pages/35.png',
+      'assets/Menu pages/36.png',
+      'assets/Menu pages/37.png'
     ];
 
     let currentSpreadIndex = 0;
