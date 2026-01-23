@@ -1,3 +1,7 @@
+/* Consistent gold color utility class */
+.boho-gold {
+  color: #A89158 !important;
+}
 /* --- Contact Page Mobile Card Visual Match to Home --- */
 @media (max-width: 600px) {
   .contact-page .inner {
@@ -121,6 +125,29 @@
     background: #A89158;
     color: #fff !important;
   }
+
+/* Consistent Button Styles for Review Buttons */
+.boho-gold-btn, button.boho-gold-btn, input[type="submit"].boho-gold-btn {
+  background-color: #A89158 !important;
+  color: #fff !important;
+  border: 2px solid #A89158 !important;
+  border-radius: 5px !important;
+  padding: 10px 20px !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  box-shadow: 0 2px 8px rgba(168,145,88,0.13) !important;
+  transition: background 0.2s, box-shadow 0.2s !important;
+}
+.boho-gold-btn:hover, .boho-gold-btn:focus {
+  background-color: #8a7846 !important;
+  border-color: #8a7846 !important;
+  box-shadow: 0 4px 12px rgba(168,145,88,0.18) !important;
+}
+
+/* Ensure gold buttons are applied globally (not only inside media queries) */
+.boho-gold-btn, .boho-gold-btn * {
+  box-sizing: border-box;
+}
 }
 /****************************
  * Common

@@ -4,7 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About — BOHO Resturant</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260123">
+  <style>
+    /* Inline override to ensure gold buttons render immediately on this page */
+    .boho-gold-btn, button.boho-gold-btn, input[type="submit"].boho-gold-btn {
+      background-color: #A89158 !important;
+      color: #fff !important;
+      border: 2px solid #A89158 !important;
+      border-radius: 5px !important;
+      padding: 8px 18px !important;
+      cursor: pointer !important;
+      font-weight: 500 !important;
+      box-shadow: 0 2px 8px rgba(168,145,88,0.13) !important;
+    }
+    .boho-gold-btn:hover, .boho-gold-btn:focus {
+      background-color: #8a7846 !important;
+      border-color: #8a7846 !important;
+      box-shadow: 0 4px 12px rgba(168,145,88,0.18) !important;
+    }
+  </style>
 </head>
 <body class="about-page">
   <!-- Full-Width Video Hero Section (Behind Everything) -->
@@ -48,26 +66,39 @@
       <!-- Posts Section -->
       <section class="posts-section">
         <h3>What Our Guests Say</h3>
-        <div class="posts-list" id="postsContainer">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3917.23496429581!2d107.0756959!3d10.3306298!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3175650053e5ff69%3A0x963ec05ced05b444!2sBOHO%20Restaurant!5e0!3m2!1svi!2s!4v1705500000!5m2!1svi!2s"
-            width="100%"
-            height="350"
-            style="border:0; border-radius: 8px; box-shadow: 0 2px 12px #0002;"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade">
-          </iframe>
+        <button id="writeReviewBtn" class="boho-gold-btn" style="margin-bottom: 16px;">Write a Review</button>
+        <!-- Modal for writing a review -->
+        <div id="reviewModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+          <div style="background:#fff; padding:24px; border-radius:8px; max-width:400px; width:90%; position:relative;">
+            <span id="closeModal" style="position:absolute; top:8px; right:12px; cursor:pointer; font-size:20px;">&times;</span>
+            <h4>Write a Review</h4>
+            <form id="guestReviewForm">
+              <label for="reviewerName">Name:</label><br>
+              <input type="text" id="reviewerName" name="reviewerName" required style="width:100%; margin-bottom:8px;"><br>
+              <label for="reviewRating">Rating:</label><br>
+              <select id="reviewRating" name="reviewRating" required style="width:100%; margin-bottom:8px;">
+                <option value="">Select</option>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Very Good</option>
+                <option value="3">3 - Good</option>
+                <option value="2">2 - Fair</option>
+                <option value="1">1 - Poor</option>
+              </select><br>
+              <label for="reviewText">Review:</label><br>
+              <textarea id="reviewText" name="reviewText" rows="4" required style="width:100%; margin-bottom:8px;"></textarea><br>
+              <button type="submit" class="boho-gold-btn" style="width:100%;margin-top:8px;">Submit</button>
+            </form>
+          </div>
         </div>
+        <div id="user-reviews-list"></div>
       </section>
 
-      <!-- Google Reviews Section -->
-      <section id="google-reviews" class="reviews-section">
-        <h3>Google Reviews</h3>
-        <div id="reviews-list"></div>
-        <!-- Hidden map container required by PlacesService -->
-        <div id="gmaps-hidden" style="height:0;width:0;overflow:hidden;"></div>
-      </section>
+        <!-- Google Reviews (sheet-backed) -->
+        <section id="google-reviews" class="reviews-section" style="margin-top:18px;">
+          <h3>Google Reviews</h3>
+          <div id="reviews-list">Loading Google reviews...</div>
+          <div id="gmaps-hidden" style="height:0;width:0;overflow:hidden;"></div>
+        </section>
 
     </div>
   </main>
@@ -84,14 +115,158 @@
 
   <script src="app.js"></script>
   <script>
+  // --- Guest Reviews Modal and Submission ---
+  document.addEventListener('DOMContentLoaded', function () {
+    const writeReviewBtn = document.getElementById('writeReviewBtn');
+    const reviewModal = document.getElementById('reviewModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const reviewForm = document.getElementById('guestReviewForm');
+    const userReviewsList = document.getElementById('user-reviews-list');
+
+    // Helper to escape HTML
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Fetch and render guest reviews from backend
+    async function fetchAndRenderGuestReviews() {
+      if (!userReviewsList) return;
+      userReviewsList.innerHTML = '<p>Loading guest reviews...</p>';
+      try {
+        const response = await fetch(`${API_URL}?action=getGuestReviews`);
+        const result = await response.json();
+        if (!result.success || !Array.isArray(result.data) || result.data.length === 0) {
+          userReviewsList.innerHTML = '<p>No guest reviews yet. Be the first to write one!</p>';
+          return;
+        }
+        // Filter, dedupe, sort (latest first) and limit to 8 reviews
+        const seen = new Set();
+        const processed = (result.data || [])
+          .filter(r => {
+            const name = (r.name || '').toLowerCase();
+            if (name === 'john' || name === 'sara' || name === 'sarah' || name === 'anonymous') return false;
+            const ratingNum = parseInt(r.rating, 10) || 0;
+            if (ratingNum <= 3) return false; // hide 3 stars and below
+            return true;
+          })
+          .map(r => ({ ...r, _date: r.date || '' }))
+          .sort((a, b) => new Date(b._date).getTime() - new Date(a._date).getTime())
+          .filter(r => {
+            const key = ((r.name || '') + '||' + (r.review || r.text || '') + '||' + (r.date || '')).toLowerCase().trim();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          })
+          .slice(0, 8);
+
+        if (!processed || processed.length === 0) {
+          userReviewsList.innerHTML = '<p>No guest reviews yet. Be the first to write one!</p>';
+          return;
+        }
+
+        userReviewsList.innerHTML = processed.map(r => {
+          const dateStr = r.date ? new Date(r.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+          const ratingNum = parseInt(r.rating, 10) || 0;
+          const stars = ratingNum > 0 ? ('★'.repeat(ratingNum) + '☆'.repeat(Math.max(0, 5 - ratingNum))) : '';
+          return `
+          <div class="review-card">
+            <div class="review-header">
+              <span class="boho-gold" style="font-weight:bold;">${escapeHtml(r.name)}</span>
+              <span class="review-date">${dateStr}</span>
+              <span class="review-rating boho-gold" style="font-size:1.2em;">${stars}</span>
+            </div>
+            <div class="review-text">${escapeHtml(r.review || r.text)}</div>
+          </div>
+        `;
+        }).join('');
+      } catch (err) {
+        userReviewsList.innerHTML = '<p>Failed to load guest reviews.</p>';
+      }
+    }
+
+    if (writeReviewBtn && reviewModal) {
+      writeReviewBtn.onclick = () => { reviewModal.style.display = 'flex'; };
+    }
+    if (closeModalBtn && reviewModal) {
+      closeModalBtn.onclick = () => { reviewModal.style.display = 'none'; };
+    }
+    window.onclick = function(event) {
+      if (event.target === reviewModal) reviewModal.style.display = 'none';
+    };
+
+    if (reviewForm) {
+      reviewForm.onsubmit = async function(e) {
+        e.preventDefault();
+        const name = document.getElementById('reviewerName').value.trim();
+        const rating = parseInt(document.getElementById('reviewRating').value, 10);
+        const text = document.getElementById('reviewText').value.trim();
+        const date = new Date().toISOString().slice(0, 10); // ISO format for backend
+        if (!name || !rating || !text) return;
+        // Send to Google Sheet via backend (GuestReviews)
+        // Use application/x-www-form-urlencoded to avoid CORS preflight on some deployments
+        try {
+          const params = new URLSearchParams();
+          params.append('action', 'addGuestReview');
+          params.append('name', name);
+          params.append('rating', String(rating));
+          params.append('text', text);
+          params.append('date', date);
+
+          await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+        } catch (err) { console.error('Failed to submit guest review', err); }
+          reviewForm.reset();
+        reviewModal.style.display = 'none';
+        // Refresh reviews after submission
+        fetchAndRenderGuestReviews();
+      };
+    }
+    // Initial render
+    fetchAndRenderGuestReviews();
+  });
+  // GoogleReviews display removed; GuestReviews are shown above.
+  </script>
+
+  <script>
+  // Fetch and render GoogleReviews (sheet-backed)
   document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('reviews-list');
     if (!container) return;
-
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
     try {
       const reviews = await apiGet('getGoogleReviews');
       if (!reviews || reviews.length === 0) {
-        container.innerHTML = '<p>Reviews are currently unavailable.</p>';
+        container.innerHTML = '<p>No Google reviews available.</p>';
+        return;
+      }
+      // Filter out low ratings, dedupe, sort by date desc and limit to 8
+      const seenG = new Set();
+      const processedG = (reviews || [])
+        .filter(r => {
+          const ratingNum = parseInt(r.rating, 10) || 0;
+          return ratingNum > 3; // show only 4 and 5 star reviews
+        })
+        .map(r => ({ ...r, _date: r.date || '' }))
+        .sort((a, b) => new Date(b._date).getTime() - new Date(a._date).getTime())
+        .filter(r => {
+          const key = ((r.name || '') + '||' + (r.review || '') + '||' + (r.date || '')).toLowerCase().trim();
+          if (seenG.has(key)) return false;
+          seenG.add(key);
+          return true;
+        })
+        .slice(0, 8);
+
+      if (processedG.length === 0) {
+        container.innerHTML = '<p>No Google reviews available.</p>';
         return;
       }
 
@@ -100,7 +275,7 @@
         if (!n || n < 1) return '';
         return `<span class="review-stars" title="${n} star${n === 1 ? '' : 's'}">${'★'.repeat(n)}${'☆'.repeat(5-n)}</span>`;
       }
-      const cards = reviews.map(r => {
+      const cards = processedG.map(r => {
         const dateStr = r.date
           ? new Date(r.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
           : '';
@@ -116,11 +291,10 @@
           </div>
         `;
       }).join('');
-
       container.innerHTML = cards;
     } catch (error) {
       console.error('Failed to load GoogleReviews sheet data', error);
-      container.innerHTML = '<p>Reviews are currently unavailable.</p>';
+      container.innerHTML = '<p>Failed to load Google reviews.</p>';
     }
   });
   </script>

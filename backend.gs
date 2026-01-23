@@ -36,6 +36,9 @@ function getSheet(sheetName) {
     } else if (!sheet && sheetName === 'GoogleReviews') {
       sheet = ss.insertSheet(sheetName);
       sheet.appendRow(['Name', 'Review', 'Date', 'Rating']);
+    } else if (!sheet && sheetName === 'GuestReviews') {
+      sheet = ss.insertSheet(sheetName);
+      sheet.appendRow(['Name', 'Review', 'Date', 'Rating']);
     } else if (sheet && sheetName === 'GoogleReviews') {
       // Ensure the sheet has the Rating column
       const headers = sheet
@@ -56,6 +59,64 @@ function getSheet(sheetName) {
   } catch (error) {
     Logger.log('Error getting sheet: ' + error.message);
     throw error;
+  }
+}
+
+// ==========================================
+// Add a user review to GuestReviews sheet (top-level)
+// ==========================================
+function addGuestReview(payload) {
+  try {
+    // Defensive: ensure payload is an object (avoid runtime errors when undefined)
+    payload = payload || {};
+    Logger.log('addGuestReview payload: ' + JSON.stringify(payload));
+
+    const sheet = getSheet('GuestReviews');
+    const newRow = [
+      payload.name || '',
+      payload.text || payload.review || '',
+      payload.date || new Date().toISOString().slice(0, 10),
+      payload.rating || '',
+    ];
+    sheet.appendRow(newRow);
+    Logger.log(
+      'addGuestReview: appended row for ' + (payload.name || 'unknown'),
+    );
+    return formatResponse(true, {}, 'Review added to GuestReviews');
+  } catch (err) {
+    Logger.log('addGuestReview error: ' + err.message);
+    return formatResponse(
+      false,
+      null,
+      'Failed to add guest review: ' + err.message,
+    );
+  }
+}
+
+// ==========================================
+// Add a user review to GoogleReviews sheet (top-level)
+// ==========================================
+function addGoogleReview(payload) {
+  try {
+    const sheet = getSheet('GoogleReviews');
+    const newRow = [
+      payload.name || '',
+      payload.text || payload.review || '',
+      payload.date || new Date().toISOString().slice(0, 10),
+      payload.rating || '',
+    ];
+    sheet.appendRow(newRow);
+    Logger.log(
+      'addGoogleReview: appended row for ' + (payload.name || 'unknown'),
+    );
+    return formatResponse(true, {}, 'Review added to GoogleReviews');
+  } catch (err) {
+    Logger.log('addGoogleReview error: ' + err.message);
+    return formatResponse(
+      false,
+      null,
+      'Failed to add google review: ' + err.message,
+    );
   }
 }
 
@@ -146,6 +207,15 @@ function doPost(e) {
         break;
       case 'deleteReview':
         response = deleteReview(payload);
+        break;
+      case 'addGoogleReview':
+        response = addGoogleReview(payload);
+        break;
+      case 'addGuestReview':
+        response = addGuestReview(payload);
+        break;
+      case 'getGuestReviews':
+        response = getGuestReviews();
         break;
 
       // Reservation endpoint
@@ -582,6 +652,18 @@ function doGet(e) {
       case 'getGoogleReviews':
         response = getGoogleReviews();
         break;
+      case 'addGuestReview':
+        // Allow adding guest reviews via GET (useful for simple curl tests when POST bodies get lost during redirect)
+        response = addGuestReview({
+          name: params.name,
+          rating: params.rating,
+          text: params.text || params.review,
+          date: params.date,
+        });
+        break;
+      case 'getGuestReviews':
+        response = getGuestReviews();
+        break;
       default:
         response = formatResponse(false, null, 'Unknown action: ' + action);
     }
@@ -628,6 +710,55 @@ function getGoogleReviews() {
   }
 
   return formatResponse(true, reviews);
+}
+
+// ==========================================
+// Get all reviews from GuestReviews sheet (top-level)
+// ==========================================
+function getGuestReviews() {
+  try {
+    const sheet = getSheet('GuestReviews');
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return formatResponse(true, []);
+    const headers = data[0];
+    const reviews = [];
+    for (let i = 1; i < data.length; i++) {
+      if (!data[i][0]) continue;
+      const row = {};
+      headers.forEach((h, idx) => {
+        row[h.toLowerCase()] = data[i][idx];
+      });
+      reviews.push({
+        name: row.name || '',
+        review: row.review || row.text || '',
+        date: row.date || '',
+        rating: row.rating || '',
+      });
+    }
+    return formatResponse(true, reviews);
+  } catch (err) {
+    Logger.log('getGuestReviews error: ' + err.message);
+    return formatResponse(
+      false,
+      null,
+      'Failed to read GuestReviews: ' + err.message,
+    );
+  }
+}
+
+// ==========================================
+// Test helper: add a sample guest review (run from Apps Script editor)
+// ==========================================
+function testAddGuestReview() {
+  var p = {
+    name: 'Test Guest',
+    rating: 5,
+    text: 'This is a test review created from Apps Script UI.',
+    date: new Date().toISOString().slice(0, 10),
+  };
+  var res = addGuestReview(p);
+  Logger.log('testAddGuestReview result: ' + JSON.stringify(res));
+  return res;
 }
 
 // ==========================================

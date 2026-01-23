@@ -3,9 +3,20 @@
 // ==========================================
 // IMPORTANT: Update this URL with your Google Apps Script deployment URL
 // It MUST end with /exec
-// Get it from: Google Apps Script > Deploy > Web app > Copy URL
-const API_URL = 'https://script.google.com/macros/s/AKfycbzqBzGEISlrgqUbmbgMM5b8PzYuRapJt2Bw1zQ60bkvz2T2JdV_7zMIIEKFkU7GPGe9/exec';
+/*
+# show redirect chain and headers
+curl -v -L -X POST 'https://script.google.com/macros/s/AKfycbwekU7zIl870MISkUa4TCKYiblTvC0BU1muVGi3qa3-hTlonRhQlvQ_ZHtuHWKLOOfPSA/exec' \
+  -H 'Content-Type: application/json' \
+  -d '{"action":"addGuestReview","name":"CLI Tester","rating":5,"text":"Test from curl","date":"2026-01-23"}' 2>&1 | sed -n '1,200p'
 
+# save raw response to file for inspection
+curl -L -X POST 'https://script.google.com/macros/s/AKfycbw1SLCvDd9O6CnK2HYdZe3SqZcThUL7FI-NmUJZMaWc4Ol_J5TlrJm0ib2QUs-K3J1F8g/exec' \
+  -H 'Content-Type: application/json' \
+  -d '{"action":"addGuestReview","name":"CLI Tester","rating":5,"text":"Test from curl","date":"2026-01-23"}' -o response.html
+
+  */
+// Get it from: Google Apps Script > Deploy > Web app > Copy URL
+const API_URL = 'https://script.google.com/macros/s/AKfycbxBPCEpGSRSH4A5pzmW3v-36_UmkWDsXOuS5SPfbZ0oPW7yHoyif2-qyHzEH_vnSj7vqA/exec'
 // ==========================================
 // Dummy Data (for frontend testing without backend)
 // ==========================================
@@ -72,57 +83,6 @@ const dummyItems = [
   }
 ];
 
-const dummyPosts = [
-  {
-    id: 'post-1',
-    name: 'John',
-    body: 'Amazing seafood! The grilled snapper was perfectly cooked.',
-    image: '',
-    created_at: '2025-12-20T10:30:00.000Z',
-    updated_at: '2025-12-20T10:30:00.000Z'
-  },
-  {
-    id: 'post-2',
-    name: 'Sarah',
-    body: 'Best restaurant in Vũng Tàu. Friendly staff and beautiful sea view!',
-    image: '',
-    created_at: '2025-12-19T15:45:00.000Z',
-    updated_at: '2025-12-19T15:45:00.000Z'
-  },
-  {
-    id: 'post-3',
-    name: 'Anonymous',
-    body: 'Love coming here with family. The fresh oysters are delicious!',
-    image: '',
-    created_at: '2025-12-18T18:00:00.000Z',
-    updated_at: '2025-12-18T18:00:00.000Z'
-  }
-];
-
-const dummyReviews = {
-  'item-1': [
-    {
-      id: 'review-1',
-      item_id: 'item-1',
-      name: 'Mike',
-      body: 'Perfect grilling and fresh fish. Highly recommend!',
-      like_count: 3,
-      created_at: '2025-12-18T12:00:00.000Z',
-      updated_at: '2025-12-18T12:00:00.000Z'
-    }
-  ],
-  'item-2': [
-    {
-      id: 'review-2',
-      item_id: 'item-2',
-      name: 'Lisa',
-      body: 'Freshest oysters I\'ve had. Worth every penny!',
-      like_count: 5,
-      created_at: '2025-12-17T14:30:00.000Z',
-      updated_at: '2025-12-17T14:30:00.000Z'
-    }
-  ]
-};
 
 // ==========================================
 // State Management
