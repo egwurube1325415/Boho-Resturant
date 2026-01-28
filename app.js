@@ -528,3 +528,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Hide navbar on scroll down, show on scroll up
+(function() {
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+  const header = document.querySelector('.header, .header-transparent');
+  if (!header) return;
+  let lastDirection = 0;
+  let hideClass = 'nav-hide-on-scroll';
+
+  function onScroll() {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > lastScrollY && currentScrollY > 60) {
+      // Scrolling down
+      if (lastDirection !== 1) {
+        header.classList.add(hideClass);
+        lastDirection = 1;
+      }
+    } else {
+      // Scrolling up
+      if (lastDirection !== -1) {
+        header.classList.remove(hideClass);
+        lastDirection = -1;
+      }
+    }
+    lastScrollY = currentScrollY;
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      window.requestAnimationFrame(onScroll);
+      ticking = true;
+    }
+  });
+})();

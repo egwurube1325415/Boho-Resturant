@@ -1,1 +1,1 @@
-# Boho-Resturant
+# Boho-Restaurant

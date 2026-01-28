@@ -1,6 +1,73 @@
+/* Hide navbar on scroll down, show on scroll up */
+.nav-hide-on-scroll {
+  transform: translateY(-120%);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+}
+.form-row .form-group {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.form-row .form-group input,
+.form-row .form-group select {
+  width: 100%;
+  box-sizing: border-box;
+}
+/* Flex row for reservation time and party size */
+.form-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+/* Add spacing above the main call to action button */
+#reservationForm .btn-primary {
+  margin-top: 24px;
+}
+/* Ensure form-row children are equal width and aligned */
+.form-row .form-group {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-bottom: 0;
+}
+.form-row .form-group label {
+  display: block;
+  margin-bottom: 6px;
+}
+.form-row .form-group input,
+.form-row .form-group select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+  margin-bottom: 0;
+}
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+/* Compact width for reservation time select */
+#resTime {
+  width: 120px;
+  min-width: 0;
+  max-width: 100%;
+}
 /* Consistent gold color utility class */
 .boho-gold {
   color: #A89158 !important;
+}
+/* Mobile: Force black font color for all reviews */
+@media (max-width: 600px) {
+  .review-card,
+  .review-card *,
+  .reviews-section,
+  .reviews-section *,
+  #google-reviews,
+  #google-reviews *,
+  #reviews-list,
+  #reviews-list * {
+    color: #000 !important;
+    text-shadow: none !important;
+  }
 }
 /* --- Contact Page Mobile Card Visual Match to Home --- */
 @media (max-width: 600px) {
@@ -158,20 +225,20 @@ body {
   padding: 0;
   margin: 0;
   font-family: "Hiragino Mincho ProN", "Times New Roman", serif;
-  background-color: #f9f7f4;
-  color: #333;
-}
+  position: sticky;
+  top: 0;
+  z-index: 100;
 
 h1 {
   font-size: 30px;
   margin: 0;
   color: #A89158;
-}
-
-h2 {
-  font-size: 24px;
-  margin: 30px 0 20px 0;
-  color: #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  padding: 20px 0;
 }
 
 h3 {
@@ -221,14 +288,18 @@ h4 {
 /* Logo sizing and responsiveness */
 .site-logo {
   height: 56px;
-  width: auto;
-  object-fit: contain;
+  width: 56px;
+  object-fit: cover;
   display: inline-block;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+  background: #fff;
 }
 
 @media (max-width: 600px) {
   .site-logo {
     height: 40px;
+    width: 40px;
   }
   h1 {
     font-size: 20px;
@@ -580,7 +651,8 @@ ul.category li.active a:visited {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: inherit;
+  font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+  font-weight: bold;
 }
 
 .btn-primary {

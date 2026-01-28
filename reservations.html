@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reservations — BOHO Resturant</title>
+  <title>Reservations — BOHO Restaurant</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="reservation-page">
@@ -21,7 +21,7 @@
     <div class="header-content">
       <a href="index.html" class="brand">
         <img src="assets/logo.jpeg" alt="BOHO Logo" class="site-logo">
-        <span class="site-title">🍽️ BOHO Resturant</span>
+        <span class="site-title"> BOHO Restaurant</span>
       </a>
       <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
       <nav class="main-nav" id="mainNav">
@@ -54,13 +54,34 @@
           <label for="resDate">Date</label>
           <input id="resDate" name="resDate" type="date" required>
         </div>
-        <div class="form-group">
-          <label for="resTime">Time</label>
-          <input id="resTime" name="resTime" type="time" required>
-        </div>
-        <div class="form-group">
-          <label for="resParty">Party size</label>
-          <input id="resParty" name="resParty" type="number" min="1" value="2" required>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="resTime">Time</label>
+            <select id="resTime" name="resTime" required>
+              <option value="09:00">09:00</option>
+              <option value="09:15">09:15</option>
+              <option value="09:30">09:30</option>
+              <option value="09:45">09:45</option>
+              <option value="10:00">10:00</option>
+              <option value="10:15">10:15</option>
+              <option value="10:30">10:30</option>
+              <option value="10:45">10:45</option>
+              <option value="11:00">11:00</option>
+              <option value="11:15">11:15</option>
+              <option value="11:30">11:30</option>
+              <option value="11:45">11:45</option>
+              <option value="12:00">12:00</option>
+              <option value="12:15">12:15</option>
+              <option value="12:30">12:30</option>
+              <option value="12:45">12:45</option>
+              <option value="13:00">13:00</option>
+              <option value="13:15">13:15</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="resParty">Party size</label>
+            <input id="resParty" name="resParty" type="number" min="1" value="2" required>
+          </div>
         </div>
         <button class="btn-primary" type="submit">Request Reservation</button>
       </form>
@@ -71,7 +92,7 @@
   </main>
 
   <footer class="footer">
-    <p>&copy; 2025 BOHO Resturant. All rights reserved.
+    <p>&copy; 2025 BOHO Restaurant. All rights reserved.
       <a class="social-link" href="https://www.facebook.com/bohogarden.vn" target="_blank" rel="noopener" aria-label="Facebook">
         <svg viewBox="0 0 24 24"><path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.406.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.406 24 22.674V1.326C24 .592 23.406 0 22.675 0"/></svg>
       </a>

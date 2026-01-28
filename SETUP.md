@@ -1,6 +1,6 @@
-# BOHO Resturant - Simplified Version (Vanilla JS + Google Apps Script)
+# BOHO Restaurant - Simplified Version (Vanilla JS + Google Apps Script)
 
-This is a simplified version of BOHO Resturant built with vanilla HTML, JavaScript, and CSS with a Google Apps Script backend.
+This is a simplified version of BOHO Restaurant built with vanilla HTML, JavaScript, and CSS with a Google Apps Script backend.
 
 ## Overview
 
@@ -25,7 +25,7 @@ simple/
 ### Step 1: Create a Google Sheet
 
 1. Go to [Google Sheets](https://sheets.google.com)
-2. Create a new spreadsheet called "BOHO_Resturant"
+2. Create a new spreadsheet called "BOHO_Restaurant"
 3. Create 3 sheets with these exact names and column headers:
 
 **Sheet 1: Items**
@@ -89,7 +89,7 @@ You have two options:
 **Option A: Using Python (Recommended)**
 
 ```bash
-cd /Users/petertechbro/Desktop/BOHO_Resturant/simple
+cd /Users/petertechbro/Desktop/BOHO_Restaurant/simple
 python3 -m http.server 8000
 ```
 
@@ -98,7 +98,7 @@ Then open: `http://localhost:8000`
 **Option B: Using Node.js**
 
 ```bash
-cd /Users/petertechbro/Desktop/BOHO_Resturant/simple
+cd /Users/petertechbro/Desktop/BOHO_Restaurant/simple
 npx http-server
 ```
 
@@ -247,4 +247,4 @@ For issues:
 2. Check the Apps Script logs (Extensions > Apps Script > Executions)
 3. Verify all Google Sheet column names match exactly
 
-Enjoy your simplified BOHO Resturant! 🍽️
+Enjoy your simplified BOHO Restaurant! 🍽️

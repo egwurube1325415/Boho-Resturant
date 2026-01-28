@@ -1,5 +1,5 @@
 // ==========================================
-// Google Apps Script Backend for BOHO Resturant
+// Google Apps Script Backend for BOHO Restaurant
 //
 // This script provides all API endpoints for:
 // - Items management
@@ -250,7 +250,7 @@ function doPost(e) {
 // ==========================================
 function handleReservationRequest(reservation) {
   try {
-    var email = 'marketing.bohorestaurant@gmail.com'; // Receiving email
+    var email = 'marketing.bohoRestaurant@gmail.com'; // Receiving email
     var subject = 'New Reservation Request – ' + (reservation.name || 'Guest');
 
     var textBody =
@@ -339,7 +339,7 @@ function handleReservationRequest(reservation) {
 // ==========================================
 function handleContactRequest(contact) {
   try {
-    var email = 'marketing.bohorestaurant@gmail.com'; // Receiving email
+    var email = 'marketing.bohoRestaurant@gmail.com'; // Receiving email
     var subject = 'New Contact Message – ' + (contact.name || 'Guest');
 
     var textBody =
